@@ -5,11 +5,15 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "metodos-numericos-base",
     "numpy>=2.5.2",
 ]
 
 [project.scripts]
 gauss-seidel = "gauss_seidel:main"
+
+[tool.uv.sources]
+metodos-numericos-base = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.9,<0.13.0"]
