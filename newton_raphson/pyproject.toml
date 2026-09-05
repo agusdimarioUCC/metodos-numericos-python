@@ -1,0 +1,19 @@
+[project]
+name = "newton-raphson"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "metodos-numericos-base",
+]
+
+[project.scripts]
+newton-raphson = "newton_raphson:main"
+
+[tool.uv.sources]
+metodos-numericos-base = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.12.9,<0.13.0"]
+build-backend = "uv_build"
