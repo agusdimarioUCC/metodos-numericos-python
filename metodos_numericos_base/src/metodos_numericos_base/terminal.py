@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Callable
 
-from metodos_numericos_base.expresiones import evaluar_funcion
+from metodos_numericos_base.expresiones import compilar_funcion
 
 
 def leer_funcion_desde_terminal(
@@ -12,8 +12,9 @@ def leer_funcion_desde_terminal(
 ) -> tuple[Callable[[float], float], str]:
 	"""Lee una expresión matemática desde terminal y devuelve la función y su texto.
 
-	Valida la expresión evaluándola en x=0; si tiene un error de sintaxis
-	o usa un nombre no permitido, vuelve a pedirla.
+	Valida la expresión con `compilar_funcion` (sin evaluarla, así que
+	`log(x)` se acepta aunque no esté definida en 0); si tiene un error
+	de sintaxis o usa un nombre no permitido, vuelve a pedirla.
 
 	Args:
 		etiqueta: Texto mostrado antes del "=" al pedir la expresión (por
@@ -29,11 +30,11 @@ def leer_funcion_desde_terminal(
 	while True:
 		expresion = entrada(f"{etiqueta} = ").strip()
 		try:
-			evaluar_funcion(expresion, 0.0)
-		except Exception as error:
+			funcion = compilar_funcion(expresion)
+		except (SyntaxError, NameError) as error:
 			print(f"Expresión inválida ({error}). Probá de nuevo.")
 			continue
-		return lambda valor_x, expresion=expresion: evaluar_funcion(expresion, valor_x), expresion
+		return funcion, expresion
 
 
 def leer_valor_inicial_desde_terminal(

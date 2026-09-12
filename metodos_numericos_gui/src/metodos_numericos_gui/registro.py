@@ -14,6 +14,7 @@ Para agregar un método nuevo: importar su `DESCRIPTOR` acá y sumarlo a
 from __future__ import annotations
 
 from biseccion.gui import DESCRIPTOR as descriptor_de_biseccion
+from descomposicion_lu.gui import DESCRIPTOR as descriptor_de_descomposicion_lu
 from gauss_seidel.gui import DESCRIPTOR as descriptor_de_gauss_seidel
 from metodos_numericos_base import DescriptorDeMetodo
 from newton_raphson.gui import DESCRIPTOR as descriptor_de_newton_raphson
@@ -26,4 +27,5 @@ METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
 	descriptor_de_newton_raphson,
 	descriptor_de_secante,
 	descriptor_de_gauss_seidel,
+	descriptor_de_descomposicion_lu,
 )

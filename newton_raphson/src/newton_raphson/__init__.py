@@ -9,6 +9,7 @@ from metodos_numericos_base import (
 	NoConvergeError,
 	ReportarIteracion,
 	evaluar_funcion,
+	formatear_valor_corto,
 	imprimir_iteracion,
 	leer_funcion_desde_terminal,
 	leer_valor_inicial_desde_terminal,
@@ -45,10 +46,14 @@ def newton_raphson(
 		tolerancia: Error máximo aceptado, medido como la diferencia
 			absoluta entre dos aproximaciones sucesivas.
 		maximo_iteraciones: Número máximo de iteraciones permitidas.
-		reportar_iteracion: Si se pasa, se llama una vez por iteración con
-			un `Iteracion(numero, aproximacion, error)`. Sirve para mostrar
-			el progreso por terminal o en una GUI sin acoplar el algoritmo
-			a ninguna de las dos.
+		reportar_iteracion: Si se pasa, se llama una vez por fila de la
+			tabla de la cátedra (i, x_i, f(x_i), f'(x_i), |E|), empezando por
+			la fila 0 de x0: `Iteracion(i, x_i, error, {"valor_funcion": f(x_i),
+			"valor_derivada": f'(x_i)})` con `error = |x_i - x_(i-1)|` (`None`
+			en la fila 0). La última fila, la de la raíz, no trae `detalle`:
+			como en los apuntes, f y f' ya no se evalúan ahí. Sirve para
+			mostrar el progreso por terminal o en una GUI sin acoplar el
+			algoritmo a ninguna de las dos.
 
 	Returns:
 		Tupla (raiz, iteraciones) con la raíz aproximada y el número de
@@ -61,28 +66,35 @@ def newton_raphson(
 			maximo_iteraciones iteraciones.
 	"""
 	aproximacion_actual = valor_inicial
-	error = float("inf")
+	error: float | None = None
 	for iteracion in range(1, maximo_iteraciones + 1):
 		valor_funcion = funcion(aproximacion_actual)
 		valor_derivada = derivada(aproximacion_actual)
+		if reportar_iteracion is not None:
+			reportar_iteracion(
+				Iteracion(
+					iteracion - 1,
+					aproximacion_actual,
+					error,
+					{"valor_funcion": valor_funcion, "valor_derivada": valor_derivada},
+				)
+			)
 		if valor_derivada == 0:
 			raise ValueError(
-				f"La derivada se anuló en x = {aproximacion_actual}, no se puede "
-				"continuar con Newton-Raphson"
+				f"f'(x) se anula en x = {formatear_valor_corto(aproximacion_actual)}: la tangente es "
+				"horizontal y no corta al eje. Probá con otro valor inicial."
 			)
 		aproximacion_siguiente = aproximacion_actual - valor_funcion / valor_derivada
 		error = abs(aproximacion_siguiente - aproximacion_actual)
-		if reportar_iteracion is not None:
-			reportar_iteracion(Iteracion(iteracion, aproximacion_siguiente, error))
 
 		if error < tolerancia:
+			if reportar_iteracion is not None:
+				reportar_iteracion(Iteracion(iteracion, aproximacion_siguiente, error))
 			return aproximacion_siguiente, iteracion
 
 		aproximacion_actual = aproximacion_siguiente
 
-	raise NoConvergeError(
-		f"No convergió después de {maximo_iteraciones} iteraciones (último error: {error:.5f})"
-	)
+	raise NoConvergeError.despues_de(maximo_iteraciones, error)
 
 
 def funcion_ejemplo(valor_x: float) -> float:

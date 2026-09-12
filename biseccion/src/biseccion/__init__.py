@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import math
 from typing import Callable
 
 from metodos_numericos_base import (
@@ -10,6 +9,7 @@ from metodos_numericos_base import (
 	NoConvergeError,
 	ReportarIteracion,
 	evaluar_funcion,
+	formatear_valor_corto,
 	imprimir_iteracion,
 	leer_funcion_desde_terminal,
 )
@@ -40,13 +40,18 @@ def biseccion(
 		funcion: Función continua de la que se busca una raíz.
 		extremo_inferior: Punta inferior del intervalo inicial.
 		extremo_superior: Punta superior del intervalo inicial.
-		tolerancia: Error máximo aceptado, medido como la mitad del ancho
-			del intervalo que todavía contiene la raíz.
+		tolerancia: Error máximo aceptado, medido como en los apuntes: la
+			diferencia |c_k - c_(k-1)| entre dos puntos medios sucesivos
+			(que es igual a la mitad del ancho del intervalo actual).
 		maximo_iteraciones: Número máximo de iteraciones permitidas.
 		reportar_iteracion: Si se pasa, se llama una vez por iteración con
-			un `Iteracion(numero, aproximacion, error)`. Sirve para mostrar
-			el progreso por terminal o en una GUI sin acoplar el algoritmo
-			a ninguna de las dos.
+			un `Iteracion(numero, punto_medio, error, detalle)`, una fila de
+			la tabla de la cátedra: `detalle` trae `"extremo_inferior"`,
+			`"extremo_superior"`, `"valor_extremo_inferior"`,
+			`"valor_punto_medio"` y `"producto"` (f(a)·f(c)). La primera
+			fila tiene `error=None` porque todavía no hay un punto medio
+			anterior. Sirve para mostrar el progreso por terminal o en una
+			GUI sin acoplar el algoritmo a ninguna de las dos.
 
 	Returns:
 		Tupla (raiz, iteraciones) con la raíz aproximada y el número de
@@ -61,8 +66,8 @@ def biseccion(
 	"""
 	if extremo_inferior >= extremo_superior:
 		raise ValueError(
-			"extremo_inferior debe ser menor que extremo_superior, se recibió "
-			f"extremo_inferior={extremo_inferior}, extremo_superior={extremo_superior}"
+			f"a tiene que ser menor que b (se recibió a = {formatear_valor_corto(extremo_inferior)}, "
+			f"b = {formatear_valor_corto(extremo_superior)})"
 		)
 
 	valor_extremo_inferior = funcion(extremo_inferior)
@@ -74,20 +79,36 @@ def biseccion(
 		return extremo_superior, 0
 	if valor_extremo_inferior * valor_extremo_superior > 0:
 		raise ValueError(
-			"funcion(extremo_inferior) y funcion(extremo_superior) deben tener signos "
-			f"opuestos, se recibió {valor_extremo_inferior} y {valor_extremo_superior}"
+			f"f(a) = {formatear_valor_corto(valor_extremo_inferior)} y "
+			f"f(b) = {formatear_valor_corto(valor_extremo_superior)} tienen el mismo signo, así que no "
+			"se puede asegurar una raíz en [a; b]. Elegí un intervalo donde f cambie de signo."
 		)
 
-	error = math.inf
+	error: float | None = None
+	punto_medio_anterior: float | None = None
 	for iteracion in range(1, maximo_iteraciones + 1):
 		punto_medio = (extremo_inferior + extremo_superior) / 2
 		valor_punto_medio = funcion(punto_medio)
-		error = (extremo_superior - extremo_inferior) / 2
+		error = None if punto_medio_anterior is None else abs(punto_medio - punto_medio_anterior)
 		if reportar_iteracion is not None:
-			reportar_iteracion(Iteracion(iteracion, punto_medio, error))
+			reportar_iteracion(
+				Iteracion(
+					iteracion,
+					punto_medio,
+					error,
+					{
+						"extremo_inferior": extremo_inferior,
+						"extremo_superior": extremo_superior,
+						"valor_extremo_inferior": valor_extremo_inferior,
+						"valor_punto_medio": valor_punto_medio,
+						"producto": valor_extremo_inferior * valor_punto_medio,
+					},
+				)
+			)
 
-		if valor_punto_medio == 0 or error < tolerancia:
+		if valor_punto_medio == 0 or (error is not None and error < tolerancia):
 			return punto_medio, iteracion
+		punto_medio_anterior = punto_medio
 
 		if valor_extremo_inferior * valor_punto_medio < 0:
 			extremo_superior = punto_medio
@@ -95,9 +116,7 @@ def biseccion(
 			extremo_inferior = punto_medio
 			valor_extremo_inferior = valor_punto_medio
 
-	raise NoConvergeError(
-		f"No convergió después de {maximo_iteraciones} iteraciones (último error: {error:.5f})"
-	)
+	raise NoConvergeError.despues_de(maximo_iteraciones, error)
 
 
 def leer_intervalo_desde_terminal(*, entrada: Callable[[str], str] = input) -> tuple[float, float]:

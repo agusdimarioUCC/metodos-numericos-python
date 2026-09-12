@@ -143,9 +143,14 @@ def gauss_seidel(
 			usa el vector cero.
 		tolerancia: Tolerancia para el criterio de convergencia (norma infinito).
 		maximo_iteraciones: Número máximo de iteraciones permitidas.
-		reportar_iteracion: Si se pasa, se llama una vez por iteración con
-			un `Iteracion(numero, aproximacion, error)`, donde `aproximacion`
-			es `tuple(x)` (nunca el array vivo, que el método sigue mutando).
+		reportar_iteracion: Si se pasa, se llama una vez por fila de la
+			tabla de la cátedra (i, X₁, |E₁|, X₂, |E₂|, ...), empezando por la
+			fila 0 de la aproximación inicial (con `error=None`):
+			`Iteracion(i, tuple(x), error, detalle)`, donde `aproximacion` es
+			`tuple(x)` (nunca el array vivo, que el método sigue mutando),
+			`error` es la norma infinito de la diferencia con la fila
+			anterior y `detalle` trae `"componente_j"` (x_j) y `"error_j"`
+			(|x_j - x_j anterior|) para j = 1..n.
 
 	Returns:
 		Tupla (x, iteraciones) con la solución aproximada y el número de
@@ -166,14 +171,19 @@ def gauss_seidel(
 	if terminos_independientes.shape != (n,):
 		raise ValueError(f"b debe tener forma ({n},), se recibió {terminos_independientes.shape}")
 	if np.any(np.diag(matriz_coeficientes) == 0):
-		raise ValueError("La diagonal de A no puede tener ceros")
+		raise ValueError(
+			"La diagonal de A no puede tener ceros: cada xᵢ se despeja dividiendo por aᵢᵢ. "
+			"Reordená las ecuaciones."
+		)
 
 	x = (
 		np.zeros(n)
 		if aproximacion_inicial is None
 		else np.array(aproximacion_inicial, dtype=np.float64).copy()
 	)
-	error = np.inf
+	error: float | None = None
+	if reportar_iteracion is not None:
+		reportar_iteracion(Iteracion(0, tuple(x), None, _detalle_de_fila(x, None)))
 
 	for iteracion in range(1, maximo_iteraciones + 1):
 		x_anterior = x.copy()
@@ -184,15 +194,27 @@ def gauss_seidel(
 			)
 			x[i] = (terminos_independientes[i] - suma) / matriz_coeficientes[i, i]
 
-		error = np.linalg.norm(x - x_anterior, ord=np.inf)
+		errores_por_componente = np.abs(x - x_anterior)
+		error = float(np.max(errores_por_componente))
 		if reportar_iteracion is not None:
-			reportar_iteracion(Iteracion(iteracion, tuple(x), error))
+			reportar_iteracion(Iteracion(iteracion, tuple(x), error, _detalle_de_fila(x, errores_por_componente)))
 		if error < tolerancia:
 			return x, iteracion
 
-	raise NoConvergeError(
-		f"No convergió después de {maximo_iteraciones} iteraciones (último error: {error:.5f})"
-	)
+	raise NoConvergeError.despues_de(maximo_iteraciones, error)
+
+
+def _detalle_de_fila(
+		x: NDArray[np.float64], errores_por_componente: NDArray[np.float64] | None
+) -> dict[str, float | None]:
+	"""Arma el `detalle` de una fila de la tabla: x_j y |E_j| de cada componente, numerados desde 1."""
+	detalle: dict[str, float | None] = {}
+	for indice, componente in enumerate(x, start=1):
+		detalle[f"componente_{indice}"] = float(componente)
+		detalle[f"error_{indice}"] = (
+			None if errores_por_componente is None else float(errores_por_componente[indice - 1])
+		)
+	return detalle
 
 
 def main() -> None:

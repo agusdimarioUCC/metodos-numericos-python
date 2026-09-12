@@ -25,19 +25,26 @@ def evaluar_funcion(expresion: str, valor_x: float) -> float:
 def compilar_funcion(expresion: str) -> Callable[[float], float]:
 	"""Valida una expresión y devuelve una función evaluable a partir de ella.
 
-	Valida evaluándola en x=0 (deja pasar `"x**2 - 2"`, rechaza una
-	expresión con error de sintaxis o un nombre no permitido) y después
-	devuelve un envoltorio que llama a `evaluar_funcion` con cada `x`
-	que se le pida. Junta en un solo lugar el patrón "validar + envolver"
-	que cada `gui.py` de método necesitaba repetir por su cuenta.
+	Valida sin evaluar: compila la expresión (rechaza errores de sintaxis)
+	y revisa que cada nombre que usa sea `x` o algo de `math` (rechaza
+	nombres desconocidos y trucos de atributos como `x.__class__`, cuyo
+	nombre de atributo también aparece en `co_names`). No se evalúa en
+	ningún punto a propósito: `log(x)` o `1/x` son expresiones válidas
+	aunque no estén definidas en x = 0. Junta en un solo lugar el patrón
+	"validar + envolver" que cada `gui.py` de método necesitaba repetir.
 
 	Raises:
-		Cualquier excepción que lance `evaluar_funcion` al evaluar en x=0
-		(SyntaxError, NameError, etc., según qué esté mal en la expresión).
+		SyntaxError: Si la expresión no es sintácticamente válida.
+		NameError: Si usa un nombre que no es `x` ni está en `math`.
 	"""
-	evaluar_funcion(expresion, 0.0)
+	if not expresion.strip():
+		raise SyntaxError("la expresión está vacía")
+	codigo = compile(expresion, "<expresión>", "eval")
+	for nombre in codigo.co_names:
+		if nombre != "x" and nombre not in _FUNCIONES_PERMITIDAS:
+			raise NameError(f"no se reconoce «{nombre}»", name=nombre)
 
 	def funcion(valor_x: float) -> float:
-		return evaluar_funcion(expresion, valor_x)
+		return float(eval(codigo, {"__builtins__": {}}, {**_FUNCIONES_PERMITIDAS, "x": valor_x}))
 
 	return funcion

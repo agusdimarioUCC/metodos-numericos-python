@@ -43,10 +43,12 @@ def punto_fijo(
 		tolerancia: Error máximo aceptado, medido como la diferencia
 			absoluta entre dos aproximaciones sucesivas.
 		maximo_iteraciones: Número máximo de iteraciones permitidas.
-		reportar_iteracion: Si se pasa, se llama una vez por iteración con
-			un `Iteracion(numero, aproximacion, error)`. Sirve para mostrar
-			el progreso por terminal o en una GUI sin acoplar el algoritmo
-			a ninguna de las dos.
+		reportar_iteracion: Si se pasa, se llama una vez por fila de la
+			tabla de la cátedra (i, x_i, g(x_i), |E|), empezando por la fila
+			0 del valor inicial: `Iteracion(i, x_i, error, {"valor_g": g(x_i)})`,
+			con `error = |x_i - x_(i-1)|` (`None` en la fila 0). Sirve para
+			mostrar el progreso por terminal o en una GUI sin acoplar el
+			algoritmo a ninguna de las dos.
 
 	Returns:
 		Tupla (raiz, iteraciones) con la raíz aproximada y el número de
@@ -56,21 +58,20 @@ def punto_fijo(
 		NoConvergeError: Si no se alcanza la tolerancia en
 			maximo_iteraciones iteraciones.
 	"""
-	aproximacion_anterior = valor_inicial
-	for iteracion in range(1, maximo_iteraciones + 1):
-		aproximacion_actual = funcion_g(aproximacion_anterior)
-		error = abs(aproximacion_actual - aproximacion_anterior)
+	aproximacion = valor_inicial
+	error: float | None = None
+	for numero in range(maximo_iteraciones + 1):
+		valor_g = funcion_g(aproximacion)
 		if reportar_iteracion is not None:
-			reportar_iteracion(Iteracion(iteracion, aproximacion_actual, error))
+			reportar_iteracion(Iteracion(numero, aproximacion, error, {"valor_g": valor_g}))
 
-		if error < tolerancia:
-			return aproximacion_actual, iteracion
+		if error is not None and error < tolerancia:
+			return aproximacion, numero
 
-		aproximacion_anterior = aproximacion_actual
+		error = abs(valor_g - aproximacion)
+		aproximacion = valor_g
 
-	raise NoConvergeError(
-		f"No convergió después de {maximo_iteraciones} iteraciones (último error: {error:.5f})"
-	)
+	raise NoConvergeError.despues_de(maximo_iteraciones, error)
 
 
 def funcion_ejemplo_g(valor_x: float) -> float:

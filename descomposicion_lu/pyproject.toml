@@ -1,12 +1,19 @@
 [project]
-name = "metodos-numericos-base"
+name = "descomposicion-lu"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-    "matplotlib>=3.11.1",
+    "metodos-numericos-base",
+    "numpy>=2.5.2",
 ]
+
+[project.scripts]
+descomposicion-lu = "descomposicion_lu:main"
+
+[tool.uv.sources]
+metodos-numericos-base = { workspace = true }
 
 [build-system]
 requires = ["uv_build>=0.12.9,<0.13.0"]
