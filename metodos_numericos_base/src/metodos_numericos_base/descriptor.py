@@ -81,7 +81,10 @@ class ColumnaDeTabla:
 	`es_raiz` marca la columna de la respuesta: su celda en la última
 	fila se resalta en ámbar, como la celda naranja de "RAÍZ" de los
 	apuntes. `es_error` marca una columna de error: la primera celda por
-	debajo de la tolerancia se resalta en verde.
+	debajo de la tolerancia se resalta en verde. `desplazamiento_en_filas`
+	baja cada celda de la columna esa fracción de fila y la dibuja como
+	una caja suelta (solo si tiene valor), para la tabla escalonada de
+	diferencias divididas: el orden k va corrido k/2 filas.
 	"""
 
 	clave: str
@@ -89,6 +92,7 @@ class ColumnaDeTabla:
 	formato: FormatoDeColumna = FormatoDeColumna.NUMERO
 	es_raiz: bool = False
 	es_error: bool = False
+	desplazamiento_en_filas: float = 0.0
 
 
 COLUMNA_DE_NUMERO_DE_FILA = ColumnaDeTabla("numero", "i", FormatoDeColumna.ENTERO)

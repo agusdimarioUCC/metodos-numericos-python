@@ -16,6 +16,7 @@ from __future__ import annotations
 from biseccion.gui import DESCRIPTOR as descriptor_de_biseccion
 from descomposicion_lu.gui import DESCRIPTOR as descriptor_de_descomposicion_lu
 from gauss_seidel.gui import DESCRIPTOR as descriptor_de_gauss_seidel
+from interpolacion_newton.gui import DESCRIPTOR as descriptor_de_interpolacion_newton
 from metodos_numericos_base import DescriptorDeMetodo
 from newton_raphson.gui import DESCRIPTOR as descriptor_de_newton_raphson
 from punto_fijo.gui import DESCRIPTOR as descriptor_de_punto_fijo
@@ -30,4 +31,5 @@ METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
 	descriptor_de_gauss_seidel,
 	descriptor_de_descomposicion_lu,
 	descriptor_de_regresion_lineal,
+	descriptor_de_interpolacion_newton,
 )

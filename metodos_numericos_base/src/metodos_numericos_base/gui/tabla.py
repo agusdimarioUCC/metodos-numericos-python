@@ -304,6 +304,10 @@ class TablaDeIteraciones(ttk.Frame):
 		es_ultima = indice == len(self._filas) - 1
 
 		for indice_de_columna, columna in enumerate(self._columnas):
+			izquierda = self._bordes[indice_de_columna]
+			derecha = self._bordes[indice_de_columna + 1]
+			corrimiento = columna.desplazamiento_en_filas * self._alto_de_fila
+			texto = self._texto(iteracion, columna)
 			relleno = None
 			if columna.es_raiz and self._raiz_resaltada and es_ultima:
 				relleno = colores.AMBAR
@@ -311,25 +315,32 @@ class TablaDeIteraciones(ttk.Frame):
 				relleno = colores.VERDE_CELDA
 			if relleno is not None:
 				self._cuerpo.create_rectangle(
-					self._bordes[indice_de_columna] + 1,
-					arriba + 1,
-					self._bordes[indice_de_columna + 1],
-					abajo,
+					izquierda + 1,
+					arriba + corrimiento + 1,
+					derecha,
+					abajo + corrimiento,
 					fill=relleno,
 					width=0,
 					tags=(etiqueta_de_fila, "resaltado"),
 				)
 			self._cuerpo.create_text(
-				*self._ancla_de_texto(indice_de_columna, arriba + self._alto_de_fila / 2),
-				text=self._texto(iteracion, columna),
+				*self._ancla_de_texto(indice_de_columna, arriba + corrimiento + self._alto_de_fila / 2),
+				text=texto,
 				anchor=self._ancla(columna),
 				font=self._tema.numeros,
 				fill=colores.TINTA,
 				tags=(etiqueta_de_fila, "texto"),
 			)
-		self._cuerpo.create_line(
-			0, abajo, self._bordes[-1], abajo, fill=colores.LINEA, tags=(etiqueta_de_fila, "linea")
-		)
+			if not columna.desplazamiento_en_filas:
+				self._cuerpo.create_line(
+					izquierda, abajo, derecha, abajo, fill=colores.LINEA, tags=(etiqueta_de_fila, "linea")
+				)
+			elif texto:
+				# Caja suelta: las celdas vacías no se dibujan y la columna queda escalonada.
+				self._cuerpo.create_rectangle(
+					izquierda, arriba + corrimiento, derecha, abajo + corrimiento,
+					outline=colores.LINEA, tags=(etiqueta_de_fila, "linea"),
+				)
 		self._cuerpo.tag_lower("seleccion")
 
 	def _redibujar_fila(self, indice: int) -> None:
@@ -341,7 +352,11 @@ class TablaDeIteraciones(ttk.Frame):
 		self._cuerpo.delete("vertical")
 		alto_total = len(self._filas) * self._alto_de_fila
 		if self._filas:
-			for borde in self._bordes:
+			for indice_de_borde, borde in enumerate(self._bordes):
+				# Un borde entre dos columnas corridas ya lo dibujan sus cajas.
+				vecinas = self._columnas[max(0, indice_de_borde - 1):indice_de_borde + 1]
+				if all(columna.desplazamiento_en_filas for columna in vecinas):
+					continue
 				self._cuerpo.create_line(borde, 0, borde, alto_total, fill=colores.LINEA, tags="vertical")
 		self._cuerpo.configure(scrollregion=(0, 0, self._bordes[-1], alto_total))
 

@@ -8,6 +8,7 @@ dependencies = [
     "biseccion",
     "descomposicion-lu",
     "gauss-seidel",
+    "interpolacion-newton",
     "metodos-numericos-base",
     "newton-raphson",
     "punto-fijo",
@@ -22,6 +23,7 @@ metodos-numericos = "metodos_numericos_gui:iniciar_gui"
 biseccion = { workspace = true }
 descomposicion-lu = { workspace = true }
 gauss-seidel = { workspace = true }
+interpolacion-newton = { workspace = true }
 metodos-numericos-base = { workspace = true }
 newton-raphson = { workspace = true }
 punto-fijo = { workspace = true }
