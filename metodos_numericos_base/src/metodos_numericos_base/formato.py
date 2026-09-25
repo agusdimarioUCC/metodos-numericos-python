@@ -82,7 +82,8 @@ def formatear_signo(valor: float) -> str:
 
 def formatear_valor_editable(valor: float) -> str:
 	"""Formatea un número para precargarlo en un campo editable: `12` en vez de `12.0`, `0,4` en vez de `0.4`."""
-	return f"{valor:g}".replace(".", ",")
+	# 15 cifras: `:g` solo deja 6 y cada redimensionado de la grilla recortaba lo que escribió el usuario.
+	return f"{valor:.15g}".replace(".", ",")
 
 
 def leer_numero(texto: str) -> float:
