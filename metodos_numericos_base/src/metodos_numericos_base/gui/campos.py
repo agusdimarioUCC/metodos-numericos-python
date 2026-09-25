@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import tkinter as tk
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from tkinter import ttk
 from typing import NamedTuple
 
@@ -338,7 +338,9 @@ class GrillaDeDatos(ttk.Frame):
 	`GrillaDeSistema` (acá no hay una matriz cuadrada: la cantidad de
 	filas no define ninguna cantidad de columnas). Cambiar la cantidad
 	redimensiona la grilla conservando los valores que siguen entrando
-	(lo que sobra se descarta, lo nuevo arranca en (0, 0)).
+	(lo que sobra se descarta). Cada punto nuevo arranca con x = el mayor
+	Xᵢ + el último paso |Xₙ − Xₙ₋₁| (así nunca repite una x, que la
+	interpolación no admite) e y vacío, para completarlo a mano.
 
 	`al_cambiar`, si se asigna después de construir la grilla, se llama
 	cada vez que el usuario termina de editar una celda (al perder el
@@ -383,7 +385,9 @@ class GrillaDeDatos(ttk.Frame):
 		self._entradas_y: list[ttk.Entry] = []
 		self._armar_grilla(valores_x_iniciales, valores_y_iniciales)
 
-	def _armar_grilla(self, valores_x: tuple[float, ...], valores_y: tuple[float, ...]) -> None:
+	def _armar_grilla(
+			self, valores_x: Sequence[float | None], valores_y: Sequence[float | None]
+	) -> None:
 		for widget in self._grilla.winfo_children():
 			widget.destroy()
 		self._entradas_x = []
@@ -402,21 +406,22 @@ class GrillaDeDatos(ttk.Frame):
 			entrada_y.grid(row=fila + 1, column=1, padx=px(1), pady=px(1))
 			self._entradas_y.append(entrada_y)
 
-	def _armar_celda(self, valor: float) -> ttk.Entry:
+	def _armar_celda(self, valor: float | None) -> ttk.Entry:
 		entrada = ttk.Entry(self._grilla, width=7, style="Celda.TEntry", font=self._tema.numeros, justify="right")
-		entrada.insert(0, formatear_valor_editable(valor))
+		if valor is not None:
+			entrada.insert(0, formatear_valor_editable(valor))
 		entrada.bind("<FocusOut>", self._avisar_cambio)
 		entrada.bind(
 			"<Key>", lambda evento, entrada=entrada: entrada.configure(style="Celda.TEntry"), add="+"
 		)
 		return entrada
 
-	def _leer_celdas_sin_validar(self) -> tuple[list[float], list[float]]:
-		def leer(entrada: ttk.Entry) -> float:
+	def _leer_celdas_sin_validar(self) -> tuple[list[float | None], list[float | None]]:
+		def leer(entrada: ttk.Entry) -> float | None:
 			try:
 				return leer_numero(entrada.get())
 			except ValueError:
-				return 0.0
+				return None
 
 		return [leer(entrada) for entrada in self._entradas_x], [leer(entrada) for entrada in self._entradas_y]
 
@@ -430,13 +435,15 @@ class GrillaDeDatos(ttk.Frame):
 		if nueva_cantidad == self._cantidad:
 			return
 
-		valores_x_actuales, valores_y_actuales = self._leer_celdas_sin_validar()
-		valores_x = tuple(
-			valores_x_actuales[fila] if fila < self._cantidad else 0.0 for fila in range(nueva_cantidad)
-		)
-		valores_y = tuple(
-			valores_y_actuales[fila] if fila < self._cantidad else 0.0 for fila in range(nueva_cantidad)
-		)
+		valores_x, valores_y = self._leer_celdas_sin_validar()
+		del valores_x[nueva_cantidad:], valores_y[nueva_cantidad:]
+		conocidos = [valor for valor in valores_x if valor is not None]
+		paso = abs(conocidos[-1] - conocidos[-2]) if len(conocidos) >= 2 else 0.0
+		siguiente_x = max(conocidos, default=0.0) + (paso or 1.0)
+		while len(valores_x) < nueva_cantidad:
+			valores_x.append(siguiente_x)
+			valores_y.append(None)
+			siguiente_x += paso or 1.0
 		self._cantidad = nueva_cantidad
 		self._armar_grilla(valores_x, valores_y)
 		self._avisar_cambio()
