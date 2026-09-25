@@ -29,6 +29,8 @@ from metodos_numericos_base.iteracion import (
 )
 from metodos_numericos_base.terminal import (
 	leer_funcion_desde_terminal,
+	leer_opcion_desde_terminal,
+	leer_puntos_desde_terminal,
 	leer_valor_inicial_desde_terminal,
 )
 
@@ -76,6 +78,8 @@ __all__ = [
 	"imprimir_iteracion",
 	"leer_funcion_desde_terminal",
 	"leer_numero",
+	"leer_opcion_desde_terminal",
+	"leer_puntos_desde_terminal",
 	"leer_valor_inicial_desde_terminal",
 	"subindice",
 ]

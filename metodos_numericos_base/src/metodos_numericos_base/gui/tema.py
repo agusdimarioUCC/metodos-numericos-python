@@ -140,6 +140,14 @@ def crear_tema(raiz: tk.Tk) -> Tema:
 		tkfont.nametofont(nombre).configure(family=familia_de_interfaz, size=10)
 	raiz.configure(background=PAPEL)
 	_configurar_estilos(ttk.Style(raiz), tema)
+	# La lista desplegable de un Combobox es un Listbox clásico de Tk, no un
+	# widget ttk: los estilos ttk no la alcanzan, hay que pintarla vía la
+	# option database.
+	raiz.option_add("*TCombobox*Listbox.font", tema.matematica)
+	raiz.option_add("*TCombobox*Listbox.background", SUPERFICIE)
+	raiz.option_add("*TCombobox*Listbox.foreground", TINTA)
+	raiz.option_add("*TCombobox*Listbox.selectBackground", AZUL_TENUE)
+	raiz.option_add("*TCombobox*Listbox.selectForeground", TINTA)
 	return tema
 
 
@@ -210,6 +218,27 @@ def _configurar_estilos(estilo: ttk.Style, tema: Tema) -> None:
 		)
 		estilo.map(nombre_de_estilo, bordercolor=[("focus", AZUL)], lightcolor=[("focus", AZUL)])
 	estilo.configure("CeldaInvalida.TEntry", padding=(px(4), px(3)), bordercolor=ROJO, lightcolor=ROJO)
+
+	estilo.configure(
+		"TCombobox",
+		padding=(px(7), px(4)),
+		fieldbackground=SUPERFICIE,
+		background=SUPERFICIE,
+		bordercolor=LINEA_FUERTE,
+		lightcolor=SUPERFICIE,
+		darkcolor=SUPERFICIE,
+		arrowcolor=TINTA_SUAVE,
+		foreground=TINTA,
+		font=tema.matematica,
+	)
+	estilo.map(
+		"TCombobox",
+		bordercolor=[("focus", AZUL)],
+		lightcolor=[("focus", AZUL)],
+		fieldbackground=[("readonly", SUPERFICIE)],
+		selectbackground=[("readonly", SUPERFICIE)],
+		selectforeground=[("readonly", TINTA)],
+	)
 
 	estilo.configure(
 		"TSpinbox",

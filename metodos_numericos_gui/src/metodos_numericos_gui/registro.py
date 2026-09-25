@@ -19,6 +19,7 @@ from gauss_seidel.gui import DESCRIPTOR as descriptor_de_gauss_seidel
 from metodos_numericos_base import DescriptorDeMetodo
 from newton_raphson.gui import DESCRIPTOR as descriptor_de_newton_raphson
 from punto_fijo.gui import DESCRIPTOR as descriptor_de_punto_fijo
+from regresion_lineal.gui import DESCRIPTOR as descriptor_de_regresion_lineal
 from secante.gui import DESCRIPTOR as descriptor_de_secante
 
 METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
@@ -28,4 +29,5 @@ METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
 	descriptor_de_secante,
 	descriptor_de_gauss_seidel,
 	descriptor_de_descomposicion_lu,
+	descriptor_de_regresion_lineal,
 )

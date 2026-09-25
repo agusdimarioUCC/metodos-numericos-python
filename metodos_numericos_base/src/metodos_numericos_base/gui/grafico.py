@@ -95,6 +95,7 @@ class LienzoDelGrafico(ttk.Frame):
 
 		self._funcion: Callable[[float], float] | None = None
 		self._iteraciones: list[Iteracion] = []
+		self._puntos_de_datos: list[tuple[float, float]] = []
 		self._tolerancia: float | None = None
 		self._exito = False
 		self._resaltado: int | None = None
@@ -129,12 +130,13 @@ class LienzoDelGrafico(ttk.Frame):
 
 	@property
 	def dibuja_una_curva(self) -> bool:
-		return self._tipo is not TipoDeGrafico.CONVERGENCIA
+		return self._tipo not in (TipoDeGrafico.CONVERGENCIA, TipoDeGrafico.DISPERSION_Y_AJUSTE)
 
 	def mostrar_vista_previa(self, funcion: Callable[[float], float], abscisas: Sequence[float]) -> None:
 		"""Muestra solo la curva, alrededor de los valores numéricos que el usuario ya escribió."""
 		self._funcion = funcion
 		self._iteraciones = []
+		self._puntos_de_datos = []
 		self._resaltado = None
 		self._exito = False
 		self._abscisas_de_referencia = list(abscisas)
@@ -146,10 +148,12 @@ class LienzoDelGrafico(ttk.Frame):
 			iteraciones: Sequence[Iteracion],
 			tolerancia: float | None,
 			exito: bool,
+			puntos_de_datos: Sequence[tuple[float, float]] = (),
 	) -> None:
 		"""Dibuja la curva y todos los pasos del método, con el último resaltado."""
 		self._funcion = funcion
 		self._iteraciones = list(iteraciones)
+		self._puntos_de_datos = list(puntos_de_datos)
 		self._tolerancia = tolerancia
 		self._exito = exito
 		self._resaltado = len(self._iteraciones) - 1 if self._iteraciones else None
@@ -172,6 +176,7 @@ class LienzoDelGrafico(ttk.Frame):
 		"""Vuelve al estado vacío."""
 		self._funcion = None
 		self._iteraciones = []
+		self._puntos_de_datos = []
 		self._resaltado = None
 		self._vista = self._vista_completa = None
 		self._dibujar()
@@ -206,6 +211,8 @@ class LienzoDelGrafico(ttk.Frame):
 	def _calcular_vista_completa(self) -> _Vista | None:
 		if self._tipo is TipoDeGrafico.CONVERGENCIA:
 			return self._vista_de_convergencia()
+		if self._tipo is TipoDeGrafico.DISPERSION_Y_AJUSTE:
+			return self._vista_de_dispersion()
 		if self._funcion is None:
 			return None
 
@@ -236,9 +243,23 @@ class LienzoDelGrafico(ttk.Frame):
 			if finitos:
 				# Percentiles en vez de mínimo/máximo: una asíntota (tan, 1/x) no aplasta el resto.
 				valores_y.extend(np.percentile(finitos, [2, 98]).tolist())
+		if self._puntos_de_datos:
+			valores_y.extend(y for _, y in self._puntos_de_datos)
 		y_minimo, y_maximo = min(valores_y), max(valores_y)
 		alto = y_maximo - y_minimo or 1.0
 		return _Vista(x_minimo, x_maximo, y_minimo - 0.12 * alto, y_maximo + 0.12 * alto)
+
+	def _vista_de_dispersion(self) -> _Vista | None:
+		if not self._puntos_de_datos:
+			return None
+		valores_x = [x for x, _ in self._puntos_de_datos]
+		minimo, maximo = min(valores_x), max(valores_x)
+		ancho = maximo - minimo
+		if ancho < 1e-12:
+			ancho = max(1.0, abs(minimo))
+			minimo, maximo = minimo - ancho / 2, maximo + ancho / 2
+		margen = 0.15 * ancho
+		return self._vista_para_rango_x(minimo - margen, maximo + margen)
 
 	def _vista_de_convergencia(self) -> _Vista | None:
 		errores = [
@@ -313,6 +334,10 @@ class LienzoDelGrafico(ttk.Frame):
 
 		if self._tipo is TipoDeGrafico.CONVERGENCIA:
 			self._dibujar_convergencia(ejes)
+		elif self._tipo is TipoDeGrafico.DISPERSION_Y_AJUSTE:
+			self._dibujar_ejes_cartesianos(ejes)
+			self._dibujar_curva(ejes)
+			self._dibujar_dispersion(ejes)
 		else:
 			self._dibujar_ejes_cartesianos(ejes)
 			if self._tipo is TipoDeGrafico.TELARANA:
@@ -445,6 +470,19 @@ class LienzoDelGrafico(ttk.Frame):
 			[raiz], [y], marker="o", markersize=9, color=colores.AMBAR,
 			markeredgecolor=colores.TINTA, markeredgewidth=1.2, zorder=6, linestyle="none",
 		)
+
+	def _dibujar_dispersion(self, ejes: Axes) -> None:
+		"""Los puntos (xᵢ, yᵢ) originales, con el elegido en la tabla resaltado en ámbar."""
+		if not self._puntos_de_datos:
+			return
+		xs = [x for x, _ in self._puntos_de_datos]
+		ys = [y for _, y in self._puntos_de_datos]
+		ejes.scatter(xs, ys, color=colores.AZUL, s=36, zorder=5, edgecolor=colores.SUPERFICIE, linewidth=0.8)
+		if self._resaltado is not None and 0 <= self._resaltado < len(self._puntos_de_datos):
+			x, y = self._puntos_de_datos[self._resaltado]
+			ejes.scatter(
+				[x], [y], color=colores.AMBAR, s=70, zorder=6, edgecolor=colores.TINTA, linewidth=1.2
+			)
 
 	# Bisección ---------------------------------------------------------------
 

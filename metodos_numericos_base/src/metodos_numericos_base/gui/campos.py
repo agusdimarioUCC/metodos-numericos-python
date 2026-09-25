@@ -1,4 +1,4 @@
-"""Widgets de entrada especiales: el teclado matemático y la grilla de un sistema Ax = b."""
+"""Widgets de entrada especiales: el teclado matemático, la grilla de un sistema Ax = b y la de puntos (x, y)."""
 
 from __future__ import annotations
 
@@ -10,10 +10,14 @@ from typing import NamedTuple
 from metodos_numericos_base.formato import formatear_valor_editable, leer_numero, subindice
 from metodos_numericos_base.gui import tema as colores
 from metodos_numericos_base.gui.tema import Tema
+from metodos_numericos_base.puntos import leer_puntos_desde_texto
 from metodos_numericos_base.sistemas import leer_sistema_desde_texto
 
 TAMANO_MAXIMO_SISTEMA = 5
 """Los ejercicios de la materia llegan a 5×5; más grande no entra cómodo en la columna de datos."""
+
+CANTIDAD_MAXIMA_DE_PUNTOS = 12
+"""Los ejercicios de ajuste de curvas llegan a una docena de puntos; más grande no entra cómodo en la columna de datos."""
 
 
 class _BotonDeTeclado(NamedTuple):
@@ -316,6 +320,162 @@ class GrillaDeSistema(ttk.Frame):
 			for numero_de_fila, entrada in enumerate(self._entradas_terminos, start=1)
 		]
 		return filas, terminos_independientes
+
+	@staticmethod
+	def _leer_celda(entrada: ttk.Entry, nombre: str) -> float:
+		try:
+			return leer_numero(entrada.get())
+		except ValueError as error:
+			entrada.configure(style="CeldaInvalida.TEntry")
+			raise ValueError(f"{nombre}: {error}") from error
+
+
+class GrillaDeDatos(ttk.Frame):
+	"""Entradas para una tabla de puntos (xᵢ, yᵢ) de longitud variable.
+
+	Un selector "Cantidad de puntos" (2 a `CANTIDAD_MAXIMA_DE_PUNTOS`) y
+	dos columnas de celdas, Xᵢ e Yᵢ, sin acoplar entre sí como en
+	`GrillaDeSistema` (acá no hay una matriz cuadrada: la cantidad de
+	filas no define ninguna cantidad de columnas). Cambiar la cantidad
+	redimensiona la grilla conservando los valores que siguen entrando
+	(lo que sobra se descarta, lo nuevo arranca en (0, 0)).
+
+	`al_cambiar`, si se asigna después de construir la grilla, se llama
+	cada vez que el usuario termina de editar una celda (al perder el
+	foco) o cambia la cantidad de puntos — mismo contrato que
+	`GrillaDeSistema.al_cambiar`, sin un consumidor todavía (hoy solo
+	regresión lineal usa esta grilla), pensado para cuando un método de
+	interpolación necesite compartir los mismos puntos entre paneles.
+	"""
+
+	def __init__(self, contenedor: tk.Widget, valor_por_defecto: str, tema: Tema) -> None:
+		super().__init__(contenedor)
+		self._tema = tema
+		self.al_cambiar: Callable[[], None] | None = None
+		self._suprimir_aviso = False
+
+		try:
+			valores_x_iniciales, valores_y_iniciales = leer_puntos_desde_texto(valor_por_defecto)
+		except ValueError:
+			valores_x_iniciales, valores_y_iniciales = (0.0, 1.0), (0.0, 0.0)
+		self._cantidad = len(valores_x_iniciales)
+
+		selector = ttk.Frame(self)
+		selector.pack(anchor="w", pady=(0, tema.px(6)))
+		ttk.Label(selector, text="Cantidad de puntos").pack(side="left")
+		self._variable_cantidad = tk.StringVar(value=str(self._cantidad))
+		self._selector_cantidad = ttk.Spinbox(
+			selector,
+			from_=2,
+			to=CANTIDAD_MAXIMA_DE_PUNTOS,
+			width=3,
+			textvariable=self._variable_cantidad,
+			command=self._aplicar_cantidad,
+			font=tema.interfaz,
+		)
+		self._selector_cantidad.pack(side="left", padx=(tema.px(8), 0))
+		self._selector_cantidad.bind("<Return>", lambda evento: self._aplicar_cantidad())
+		self._selector_cantidad.bind("<FocusOut>", lambda evento: self._aplicar_cantidad())
+
+		self._grilla = ttk.Frame(self)
+		self._grilla.pack(anchor="w")
+		self._entradas_x: list[ttk.Entry] = []
+		self._entradas_y: list[ttk.Entry] = []
+		self._armar_grilla(valores_x_iniciales, valores_y_iniciales)
+
+	def _armar_grilla(self, valores_x: tuple[float, ...], valores_y: tuple[float, ...]) -> None:
+		for widget in self._grilla.winfo_children():
+			widget.destroy()
+		self._entradas_x = []
+		self._entradas_y = []
+		px = self._tema.px
+
+		ttk.Label(self._grilla, text="Xᵢ", style="Encabezado.TLabel").grid(row=0, column=0, pady=(0, px(2)))
+		ttk.Label(self._grilla, text="Yᵢ", style="Encabezado.TLabel").grid(row=0, column=1, pady=(0, px(2)))
+
+		for fila in range(self._cantidad):
+			entrada_x = self._armar_celda(valores_x[fila])
+			entrada_x.grid(row=fila + 1, column=0, padx=px(1), pady=px(1))
+			self._entradas_x.append(entrada_x)
+
+			entrada_y = self._armar_celda(valores_y[fila])
+			entrada_y.grid(row=fila + 1, column=1, padx=px(1), pady=px(1))
+			self._entradas_y.append(entrada_y)
+
+	def _armar_celda(self, valor: float) -> ttk.Entry:
+		entrada = ttk.Entry(self._grilla, width=7, style="Celda.TEntry", font=self._tema.numeros, justify="right")
+		entrada.insert(0, formatear_valor_editable(valor))
+		entrada.bind("<FocusOut>", self._avisar_cambio)
+		entrada.bind(
+			"<Key>", lambda evento, entrada=entrada: entrada.configure(style="Celda.TEntry"), add="+"
+		)
+		return entrada
+
+	def _leer_celdas_sin_validar(self) -> tuple[list[float], list[float]]:
+		def leer(entrada: ttk.Entry) -> float:
+			try:
+				return leer_numero(entrada.get())
+			except ValueError:
+				return 0.0
+
+		return [leer(entrada) for entrada in self._entradas_x], [leer(entrada) for entrada in self._entradas_y]
+
+	def _aplicar_cantidad(self) -> None:
+		try:
+			nueva_cantidad = int(self._variable_cantidad.get().strip())
+		except ValueError:
+			nueva_cantidad = self._cantidad
+		nueva_cantidad = max(2, min(CANTIDAD_MAXIMA_DE_PUNTOS, nueva_cantidad))
+		self._variable_cantidad.set(str(nueva_cantidad))
+		if nueva_cantidad == self._cantidad:
+			return
+
+		valores_x_actuales, valores_y_actuales = self._leer_celdas_sin_validar()
+		valores_x = tuple(
+			valores_x_actuales[fila] if fila < self._cantidad else 0.0 for fila in range(nueva_cantidad)
+		)
+		valores_y = tuple(
+			valores_y_actuales[fila] if fila < self._cantidad else 0.0 for fila in range(nueva_cantidad)
+		)
+		self._cantidad = nueva_cantidad
+		self._armar_grilla(valores_x, valores_y)
+		self._avisar_cambio()
+
+	def _avisar_cambio(self, evento: object = None) -> None:
+		if not self._suprimir_aviso and self.al_cambiar is not None:
+			self.al_cambiar()
+
+	def establecer_puntos(self, valores_x: tuple[float, ...], valores_y: tuple[float, ...]) -> None:
+		"""Reemplaza el contenido de la grilla por los puntos dados.
+
+		Suprime `al_cambiar` mientras reconstruye, para no reenviar el
+		mismo cambio de vuelta a la grilla de origen (mismo contrato que
+		`GrillaDeSistema.establecer_sistema`).
+		"""
+		self._suprimir_aviso = True
+		try:
+			self._cantidad = len(valores_x)
+			self._variable_cantidad.set(str(self._cantidad))
+			self._armar_grilla(valores_x, valores_y)
+		finally:
+			self._suprimir_aviso = False
+
+	def obtener_puntos(self) -> tuple[tuple[float, ...], tuple[float, ...]]:
+		"""Lee la grilla y devuelve (valores_x, valores_y).
+
+		Raises:
+			ValueError: Si alguna celda no es un número; la celda queda
+				marcada en rojo hasta que se la vuelva a editar.
+		"""
+		valores_x = tuple(
+			self._leer_celda(entrada, f"X{subindice(numero_de_fila)}")
+			for numero_de_fila, entrada in enumerate(self._entradas_x, start=1)
+		)
+		valores_y = tuple(
+			self._leer_celda(entrada, f"Y{subindice(numero_de_fila)}")
+			for numero_de_fila, entrada in enumerate(self._entradas_y, start=1)
+		)
+		return valores_x, valores_y
 
 	@staticmethod
 	def _leer_celda(entrada: ttk.Entry, nombre: str) -> float:

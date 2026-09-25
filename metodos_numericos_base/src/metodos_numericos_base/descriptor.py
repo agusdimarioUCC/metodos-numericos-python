@@ -25,6 +25,8 @@ class TipoDeCampo(Enum):
 	TEXTO_MULTILINEA = auto()
 	CASILLA_DE_VERIFICACION = auto()
 	SISTEMA_DE_ECUACIONES = auto()
+	TABLA_DE_PUNTOS = auto()
+	SELECTOR = auto()
 
 
 @dataclass(frozen=True)
@@ -40,7 +42,12 @@ class CampoDeEntrada:
 	ecuación por línea, coeficientes y término independiente separados
 	por espacios, con un "|" opcional antes del último valor — se usa
 	una única vez, para poblar la grilla de entradas con un sistema de
-	ejemplo y para inferir su tamaño inicial.
+	ejemplo y para inferir su tamaño inicial. Para `TABLA_DE_PUNTOS`,
+	`valor_por_defecto` es texto con un punto por línea, "x y" separados
+	por un espacio — misma idea, para poblar la grilla de puntos con un
+	ejemplo e inferir su cantidad inicial de filas. `opciones` solo se
+	usa para `SELECTOR`: la lista fija que se muestra en el desplegable
+	(`valor_por_defecto` debe ser una de ellas).
 	"""
 
 	nombre: str
@@ -48,6 +55,7 @@ class CampoDeEntrada:
 	tipo: TipoDeCampo
 	valor_por_defecto: str = ""
 	cantidad_de_lineas: int = 6
+	opciones: tuple[str, ...] = ()
 
 
 class FormatoDeColumna(Enum):
@@ -105,6 +113,9 @@ class TipoDeGrafico(Enum):
 	CONVERGENCIA = auto()
 	"""|E| de cada componente contra la iteración, en escala logarítmica (métodos vectoriales)."""
 
+	DISPERSION_Y_AJUSTE = auto()
+	"""Puntos (xᵢ, yᵢ) dispersos con la curva ajustada por mínimos cuadrados superpuesta (regresión lineal)."""
+
 
 @dataclass(frozen=True)
 class GraficoDeMetodo:
@@ -153,6 +164,16 @@ class ResultadoDeMetodo:
 	Todo viaja sin formatear (floats crudos): la GUI decide la cantidad
 	de decimales y el separador, y puede volver a formatear sin
 	recalcular cuando el usuario cambia los decimales.
+
+	`etiquetas_de_componentes` nombra cada posición de `valor` cuando es
+	una tupla (por ejemplo `("a₀", "a₁")` en vez de los genéricos
+	`x₁, x₂, …` que se usan si se deja vacía). `funcion_para_grafico` y
+	`puntos_de_datos` son para métodos como la regresión lineal, cuya
+	curva no viene de una expresión tipeada por el usuario sino que la
+	calcula el propio método: `funcion_para_grafico` es la curva ya
+	ajustada en el espacio original (y = f(x)) y `puntos_de_datos` son
+	los (xᵢ, yᵢ) crudos a dispersar en el gráfico (ver
+	`TipoDeGrafico.DISPERSION_Y_AJUSTE`).
 	"""
 
 	etiqueta_del_valor: str
@@ -161,6 +182,9 @@ class ResultadoDeMetodo:
 	verificaciones: tuple[Verificacion, ...] = ()
 	advertencias: tuple[str, ...] = ()
 	matrices: tuple[MatrizDeResultado, ...] = ()
+	etiquetas_de_componentes: tuple[str, ...] = ()
+	funcion_para_grafico: Callable[[float], float] | None = None
+	puntos_de_datos: tuple[tuple[float, float], ...] = ()
 
 
 EjecutarMetodo = Callable[[dict[str, object], ReportarIteracion], ResultadoDeMetodo]

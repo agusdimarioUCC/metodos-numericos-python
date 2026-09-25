@@ -6,7 +6,7 @@ import math
 import tkinter as tk
 from tkinter import ttk
 
-from metodos_numericos_base.descriptor import DescriptorDeMetodo, ResultadoDeMetodo, TipoDeCampo
+from metodos_numericos_base.descriptor import DescriptorDeMetodo, ResultadoDeMetodo, TipoDeCampo, TipoDeGrafico
 from metodos_numericos_base.errores import EntradaInvalidaError, NoConvergeError
 from metodos_numericos_base.expresiones import compilar_funcion
 from metodos_numericos_base.formato import (
@@ -17,7 +17,7 @@ from metodos_numericos_base.formato import (
 	subindice,
 )
 from metodos_numericos_base.gui import tema as colores
-from metodos_numericos_base.gui.campos import GrillaDeSistema, TecladoMatematico
+from metodos_numericos_base.gui.campos import GrillaDeDatos, GrillaDeSistema, TecladoMatematico
 from metodos_numericos_base.gui.grafico import LienzoDelGrafico
 from metodos_numericos_base.gui.matrices import VistaDeMatrices
 from metodos_numericos_base.gui.tabla import TablaDeIteraciones
@@ -166,6 +166,11 @@ class PanelDeMetodo(ttk.Frame):
 				grilla.grid(row=fila, column=0, columnspan=2, sticky="w", pady=separacion)
 				self._widgets[campo.nombre] = grilla
 				continue
+			if campo.tipo is TipoDeCampo.TABLA_DE_PUNTOS:
+				grilla_de_datos = GrillaDeDatos(campos, campo.valor_por_defecto, self._tema)
+				grilla_de_datos.grid(row=fila, column=0, columnspan=2, sticky="w", pady=separacion)
+				self._widgets[campo.nombre] = grilla_de_datos
+				continue
 
 			ttk.Label(campos, text=campo.etiqueta, style="Etiqueta.TLabel").grid(
 				row=fila, column=0, sticky="w", padx=(0, px(10)), pady=separacion
@@ -178,6 +183,15 @@ class PanelDeMetodo(ttk.Frame):
 				widget.insert("1.0", campo.valor_por_defecto)
 				widget.grid(row=fila, column=1, sticky="we", pady=separacion)
 				self._widgets[campo.nombre] = widget
+				continue
+			if campo.tipo is TipoDeCampo.SELECTOR:
+				variable_de_seleccion = tk.StringVar(value=campo.valor_por_defecto)
+				selector = ttk.Combobox(
+					campos, textvariable=variable_de_seleccion, values=list(campo.opciones),
+					state="readonly", font=self._tema.matematica, width=14,
+				)
+				selector.grid(row=fila, column=1, sticky="w", pady=separacion)
+				self._widgets[campo.nombre] = variable_de_seleccion
 				continue
 
 			es_expresion = campo.tipo is TipoDeCampo.EXPRESION_MATEMATICA
@@ -246,11 +260,12 @@ class PanelDeMetodo(ttk.Frame):
 		divisor = ttk.Panedwindow(hoja, orient="vertical")
 		divisor.pack(fill="both", expand=True, padx=px(4), pady=px(4))
 		if descriptor.grafico is not None:
-			mensaje = (
-				"Calculá para ver cómo baja el error de cada incógnita."
-				if descriptor.grafico.campo_de_la_funcion is None
-				else "Escribí la función para ver su curva."
-			)
+			if descriptor.grafico.tipo is TipoDeGrafico.DISPERSION_Y_AJUSTE:
+				mensaje = "Cargá los puntos y elegí el modelo para ver el ajuste."
+			elif descriptor.grafico.campo_de_la_funcion is None:
+				mensaje = "Calculá para ver cómo baja el error de cada incógnita."
+			else:
+				mensaje = "Escribí la función para ver su curva."
 			self._grafico = LienzoDelGrafico(divisor, self._tema, descriptor.grafico, mensaje)
 			divisor.add(self._grafico, weight=3)
 
@@ -286,6 +301,13 @@ class PanelDeMetodo(ttk.Frame):
 					valores[campo.nombre] = widget.obtener_sistema()
 				except ValueError as error:
 					raise EntradaInvalidaError(str(error)) from error
+			elif campo.tipo is TipoDeCampo.TABLA_DE_PUNTOS:
+				try:
+					valores[campo.nombre] = widget.obtener_puntos()
+				except ValueError as error:
+					raise EntradaInvalidaError(str(error)) from error
+			elif campo.tipo is TipoDeCampo.SELECTOR:
+				valores[campo.nombre] = widget.get()
 			else:
 				raise AssertionError(f"Tipo de campo no soportado: {campo.tipo}")
 
@@ -395,7 +417,12 @@ class PanelDeMetodo(ttk.Frame):
 		if self._grafico is not None:
 			campo_de_la_funcion = self._descriptor.grafico.campo_de_la_funcion
 			funcion = valores.get(campo_de_la_funcion) if campo_de_la_funcion else None
-			self._grafico.mostrar_resultado(funcion, self._iteraciones, tolerancia, exito)
+			puntos_de_datos: tuple[tuple[float, float], ...] = ()
+			if exito and self._resultado.funcion_para_grafico is not None:
+				funcion = self._resultado.funcion_para_grafico
+			if exito:
+				puntos_de_datos = self._resultado.puntos_de_datos
+			self._grafico.mostrar_resultado(funcion, self._iteraciones, tolerancia, exito, puntos_de_datos)
 		if self._matrices is not None:
 			self._matrices.mostrar(self._resultado.matrices if exito else ())
 		self._mostrar_bloque_de_resultado()
@@ -451,10 +478,13 @@ class PanelDeMetodo(ttk.Frame):
 			banda = tk.Frame(bloque, background=colores.AMBAR, padx=px(14), pady=px(4))
 			banda.pack(anchor="w", pady=(px(4), px(8)))
 			if isinstance(resultado.valor, tuple):
+				etiquetas = resultado.etiquetas_de_componentes or tuple(
+					f"x{subindice(indice + 1)}" for indice in range(len(resultado.valor))
+				)
 				columnas = 2 if len(resultado.valor) > 4 else 1
-				for indice, componente in enumerate(resultado.valor):
+				for indice, (etiqueta, componente) in enumerate(zip(etiquetas, resultado.valor)):
 					tk.Label(
-						banda, text=f"x{subindice(indice + 1)} = {formatear_numero(componente, decimales)}",
+						banda, text=f"{etiqueta} = {formatear_numero(componente, decimales)}",
 						font=self._tema.resultado_vectorial, background=colores.AMBAR, foreground=colores.TINTA,
 					).grid(row=indice // columnas, column=indice % columnas, sticky="w", padx=(0, px(18) if columnas > 1 else 0))
 			else:
