@@ -36,6 +36,8 @@ from metodos_numericos.iteracion import Iteracion
 
 _PUNTOS_DE_LA_CURVA = 700
 _FACTOR_DE_ZOOM = 1.25
+# Tope de aplastamiento: los ejes no son más anchos que 2,5 veces su alto.
+_PROPORCION_MINIMA_ALTO_SOBRE_ANCHO = 0.4
 
 
 @dataclass(frozen=True)
@@ -96,6 +98,7 @@ class LienzoDelGrafico(ttk.Frame):
 		self._funcion: Callable[[float], float] | None = None
 		self._iteraciones: list[Iteracion] = []
 		self._puntos_de_datos: list[tuple[float, float]] = []
+		self._punto_de_resultado: tuple[float, float] | None = None
 		self._tolerancia: float | None = None
 		self._exito = False
 		self._resaltado: int | None = None
@@ -123,6 +126,7 @@ class LienzoDelGrafico(ttk.Frame):
 		self._lienzo.mpl_connect("button_press_event", self._al_presionar)
 		self._lienzo.mpl_connect("motion_notify_event", self._al_mover)
 		self._lienzo.mpl_connect("button_release_event", self._al_soltar)
+		self._lienzo.mpl_connect("resize_event", lambda evento: self._programar_redibujo())
 
 		self._dibujar()
 
@@ -142,6 +146,7 @@ class LienzoDelGrafico(ttk.Frame):
 		self._funcion = funcion
 		self._iteraciones = []
 		self._puntos_de_datos = []
+		self._punto_de_resultado = None
 		self._resaltado = None
 		self._exito = False
 		self._abscisas_de_referencia = list(abscisas)
@@ -154,11 +159,13 @@ class LienzoDelGrafico(ttk.Frame):
 			tolerancia: float | None,
 			exito: bool,
 			puntos_de_datos: Sequence[tuple[float, float]] = (),
+			punto_de_resultado: tuple[float, float] | None = None,
 	) -> None:
 		"""Dibuja la curva y todos los pasos del método, con el último resaltado."""
 		self._funcion = funcion
 		self._iteraciones = list(iteraciones)
 		self._puntos_de_datos = list(puntos_de_datos)
+		self._punto_de_resultado = punto_de_resultado
 		self._tolerancia = tolerancia
 		self._exito = exito
 		self._resaltado = len(self._iteraciones) - 1 if self._iteraciones else None
@@ -182,6 +189,7 @@ class LienzoDelGrafico(ttk.Frame):
 		self._funcion = None
 		self._iteraciones = []
 		self._puntos_de_datos = []
+		self._punto_de_resultado = None
 		self._resaltado = None
 		self._vista = self._vista_completa = None
 		self._dibujar()
@@ -261,7 +269,10 @@ class LienzoDelGrafico(ttk.Frame):
 		if not self._puntos_de_datos:
 			return None
 		# Margen chico: la vista la definen los puntos, no hay pasos alrededor que mostrar.
-		return self._vista_con_margen([abscisa for abscisa, _ in self._puntos_de_datos], 0.15)
+		abscisas = [abscisa for abscisa, _ in self._puntos_de_datos]
+		if self._punto_de_resultado is not None:
+			abscisas.append(self._punto_de_resultado[0])
+		return self._vista_con_margen(abscisas, 0.15)
 
 	def _vista_de_convergencia(self) -> _Vista | None:
 		errores = [
@@ -326,6 +337,11 @@ class LienzoDelGrafico(ttk.Frame):
 		else:
 			ejes = self._figura.add_subplot()
 			ejes_de_intervalos = None
+			if self._tipo is not TipoDeGrafico.CONVERGENCIA:
+				ancho, alto = self._figura.get_size_inches()
+				if alto / ancho < _PROPORCION_MINIMA_ALTO_SOBRE_ANCHO:
+					# En un panel muy ancho la curva se aplasta: se achica el ancho de los ejes.
+					ejes.set_box_aspect(_PROPORCION_MINIMA_ALTO_SOBRE_ANCHO)
 		self._ejes_principales = ejes
 
 		vista = self._vista
@@ -474,7 +490,7 @@ class LienzoDelGrafico(ttk.Frame):
 		)
 
 	def _dibujar_dispersion(self, ejes: Axes) -> None:
-		"""Los puntos (xᵢ, yᵢ) originales, con el elegido en la tabla resaltado en ámbar."""
+		"""Los puntos (xᵢ, yᵢ) originales (el elegido en la tabla con un anillo azul) y el resultado en ámbar."""
 		if not self._puntos_de_datos:
 			return
 		abscisas, ordenadas = zip(*self._puntos_de_datos)
@@ -483,7 +499,12 @@ class LienzoDelGrafico(ttk.Frame):
 			abscisa_resaltada, ordenada_resaltada = self._puntos_de_datos[self._resaltado]
 			ejes.scatter(
 				[abscisa_resaltada], [ordenada_resaltada],
-				color=colores.AMBAR, s=70, zorder=6, edgecolor=colores.TINTA, linewidth=1.2,
+				facecolor=colores.SUPERFICIE, s=110, zorder=5.5, edgecolor=colores.AZUL, linewidth=1.6,
+			)
+		if self._punto_de_resultado is not None:
+			ejes.plot(
+				[self._punto_de_resultado[0]], [self._punto_de_resultado[1]], marker="o", markersize=9,
+				color=colores.AMBAR, markeredgecolor=colores.TINTA, markeredgewidth=1.2, zorder=6, linestyle="none",
 			)
 
 	# Bisección ---------------------------------------------------------------

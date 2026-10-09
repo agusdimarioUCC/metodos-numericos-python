@@ -181,7 +181,8 @@ class ResultadoDeMetodo:
 	calcula el propio método: `funcion_para_grafico` es la curva ya
 	ajustada en el espacio original (y = f(x)) y `puntos_de_datos` son
 	los (xᵢ, yᵢ) crudos a dispersar en el gráfico (ver
-	`TipoDeGrafico.DISPERSION_Y_AJUSTE`).
+	`TipoDeGrafico.DISPERSION_Y_AJUSTE`). `punto_de_resultado` es el par
+	(x, valor) que se marca en ámbar sobre esa curva (la interpolación).
 	"""
 
 	etiqueta_del_valor: str
@@ -193,6 +194,7 @@ class ResultadoDeMetodo:
 	etiquetas_de_componentes: tuple[str, ...] = ()
 	funcion_para_grafico: Callable[[float], float] | None = None
 	puntos_de_datos: tuple[tuple[float, float], ...] = ()
+	punto_de_resultado: tuple[float, float] | None = None
 
 
 EjecutarMetodo = Callable[[dict[str, object], ReportarIteracion], ResultadoDeMetodo]

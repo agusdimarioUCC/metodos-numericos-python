@@ -32,6 +32,7 @@ def ejecutar_interpolacion_lagrange(
 		cantidad_de_iteraciones=len(valores_x),
 		funcion_para_grafico=polinomio,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
+		punto_de_resultado=(valores["valor_a_interpolar"], valor),
 	)
 
 

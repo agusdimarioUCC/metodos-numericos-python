@@ -280,7 +280,7 @@ class PanelDeMetodo(ttk.Frame):
 			else:
 				mensaje = "Escribí la función para ver su curva."
 			self._grafico = LienzoDelGrafico(divisor, self._tema, descriptor.grafico, mensaje)
-			divisor.add(self._grafico, weight=3)
+			divisor.add(self._grafico, weight=4)
 
 		if descriptor.columnas is not None:
 			contenedor_de_tabla = ttk.Frame(divisor, style="Superficie.TFrame")
@@ -429,11 +429,15 @@ class PanelDeMetodo(ttk.Frame):
 			campo_de_la_funcion = self._descriptor.grafico.campo_de_la_funcion
 			funcion = valores.get(campo_de_la_funcion) if campo_de_la_funcion else None
 			puntos_de_datos: tuple[tuple[float, float], ...] = ()
+			punto_de_resultado = None
 			if exito and self._resultado.funcion_para_grafico is not None:
 				funcion = self._resultado.funcion_para_grafico
 			if exito:
 				puntos_de_datos = self._resultado.puntos_de_datos
-			self._grafico.mostrar_resultado(funcion, self._iteraciones, tolerancia, exito, puntos_de_datos)
+				punto_de_resultado = self._resultado.punto_de_resultado
+			self._grafico.mostrar_resultado(
+				funcion, self._iteraciones, tolerancia, exito, puntos_de_datos, punto_de_resultado
+			)
 		if self._matrices is not None:
 			self._matrices.mostrar(self._resultado.matrices if exito else ())
 		self._mostrar_bloque_de_resultado()

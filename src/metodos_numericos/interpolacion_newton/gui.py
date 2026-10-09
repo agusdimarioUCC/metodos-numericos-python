@@ -26,14 +26,16 @@ def ejecutar_interpolacion_newton(
 	valores_x, valores_y = valores["puntos"]
 	valor_a_interpolar = valores["valor_a_interpolar"]
 	coeficientes, polinomio = interpolacion_newton(valores_x, valores_y, reportar_iteracion=reportar_iteracion)
+	valor_interpolado = polinomio(valor_a_interpolar)
 	return ResultadoDeMetodo(
 		etiqueta_del_valor="Coeficientes del polinomio",
 		valor=coeficientes,
 		etiquetas_de_componentes=tuple(f"b{subindice(orden)}" for orden in range(len(coeficientes))),
 		cantidad_de_iteraciones=len(valores_x),
-		verificaciones=(Verificacion(f"P{subindice(len(coeficientes) - 1)}(x)", polinomio(valor_a_interpolar)),),
+		verificaciones=(Verificacion(f"P{subindice(len(coeficientes) - 1)}(x)", valor_interpolado),),
 		funcion_para_grafico=polinomio,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
+		punto_de_resultado=(valor_a_interpolar, valor_interpolado),
 	)
 
 

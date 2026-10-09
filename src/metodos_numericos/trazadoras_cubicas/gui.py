@@ -38,13 +38,15 @@ def ejecutar_trazadoras_cubicas(
 			"x está fuera del intervalo de los puntos: se extiende el primer o el último polinomio, "
 			"que solo vale en su propio tramo.",
 		)
+	valor_interpolado = trazadora(valor_a_interpolar)
 	return ResultadoDeMetodo(
 		etiqueta_del_valor="S(x)",
-		valor=trazadora(valor_a_interpolar),
+		valor=valor_interpolado,
 		cantidad_de_iteraciones=len(valores_x),
 		advertencias=advertencias,
 		funcion_para_grafico=trazadora,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
+		punto_de_resultado=(valor_a_interpolar, valor_interpolado),
 	)
 
 
