@@ -77,7 +77,7 @@ def armar_columnas(valores: dict[str, object]) -> tuple[ColumnaDeTabla, ...]:
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Gauss-Seidel",
 	capitulo="Sistemas de ecuaciones lineales",
-	formula="xᵢ = (bᵢ − Σⱼ≠ᵢ aᵢⱼ·xⱼ) / aᵢᵢ",
+	formula=r"x_i = \dfrac{b_i - \sum_{j \neq i} a_{ij}\,x_j}{a_{ii}}",
 	descripcion=(
 		"Despeja cada incógnita de su ecuación y usa enseguida los valores nuevos, partiendo "
 		"de x = 0. Para cuando todos los |Eⱼ| quedan por debajo de ε."

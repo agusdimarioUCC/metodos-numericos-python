@@ -88,7 +88,7 @@ def armar_columnas(valores: dict[str, object]) -> tuple[ColumnaDeTabla, ...]:
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Regresión lineal",
 	capitulo="Ajuste de curvas",
-	formula="v = a₀ + a₁u",
+	formula=r"v = a_0 + a_1 u",
 	descripcion=(
 		"Ajusta y = a₀ + a₁x (o una versión linealizada de un modelo exponencial, potencial o de "
 		"crecimiento) a un conjunto de puntos por mínimos cuadrados."

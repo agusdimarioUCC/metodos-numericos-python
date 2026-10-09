@@ -54,7 +54,7 @@ def ejecutar_biseccion(valores: dict[str, object], reportar_iteracion: ReportarI
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Bisección",
 	capitulo="Raíces de funciones",
-	formula="c = (a + b) / 2",
+	formula=r"c = \dfrac{a + b}{2}",
 	descripcion=(
 		"Parte el intervalo [a; b] a la mitad en cada paso y se queda con la mitad donde f "
 		"cambia de signo. Necesita f(a)·f(b) < 0."

@@ -52,7 +52,7 @@ def ejecutar_punto_fijo(valores: dict[str, object], reportar_iteracion: Reportar
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Punto fijo",
 	capitulo="Raíces de funciones",
-	formula="xᵢ₊₁ = g(xᵢ)",
+	formula=r"x_{i+1} = g(x_i)",
 	descripcion=(
 		"Busca dónde g(x) corta a la recta y = x, con g(x) despejada de f(x) = 0. "
 		"Converge si |g′(x)| < 1 cerca de la raíz."

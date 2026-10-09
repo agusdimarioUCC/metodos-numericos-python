@@ -67,7 +67,7 @@ def armar_columnas(valores: dict[str, object]) -> tuple[ColumnaDeTabla, ...]:
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Interpolación de Newton",
 	capitulo="Ajuste de curvas",
-	formula="Pₙ(x) = b₀ + b₁(x − x₀) + … + bₙ(x − x₀)…(x − xₙ₋₁)",
+	formula=r"P_n(x) = b_0 + b_1(x - x_0) + \cdots + b_n(x - x_0)\cdots(x - x_{n-1})",
 	descripcion=(
 		"Arma la tabla de diferencias divididas y usa su primera fila (bₖ = f[xₖ;…;x₀]) como "
 		"coeficientes del polinomio que pasa exactamente por todos los puntos."

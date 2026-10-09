@@ -221,8 +221,9 @@ class DescriptorDeMetodo:
 	(float) y `"maximo_iteraciones"` (int).
 
 	`capitulo` agrupa los métodos en la barra lateral, con los nombres de
-	los capítulos de los apuntes. `formula` es la fórmula recurrente que
-	se muestra bajo el nombre del método. `columnas` arma las columnas de
+	los capítulos de los apuntes. `formula` es la fórmula del método en
+	sintaxis mathtext de matplotlib (un subconjunto de LaTeX: fracciones,
+	sumatorias, subíndices como `x_{i+1}`), que la GUI dibuja como imagen bajo el nombre del método. `columnas` arma las columnas de
 	la tabla de iteraciones a partir de los mismos `valores` (un callable,
 	para que un método vectorial pueda tener una columna por componente);
 	`None` si el método no muestra tabla. `grafico` es `None` si no tiene

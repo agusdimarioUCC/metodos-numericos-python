@@ -12,6 +12,7 @@ Implementaciones en Python de métodos numéricos para el Taller de Métodos Num
 - **Descomposición LU** (`descomposicion_lu/`) — resolución directa de `Ax = b`, cálculo de `A⁻¹` y número de condición.
 - **Regresión lineal** (`regresion_lineal/`) — mínimos cuadrados, con linealización para modelos exponencial, potencial y de crecimiento.
 - **Interpolación de Newton** (`interpolacion_newton/`) — polinomio por diferencias divididas.
+- **Interpolación de Lagrange** (`interpolacion_lagrange/`) — polinomio como suma de Lᵢ(x)·yᵢ, sin diferencias divididas.
 
 ## Estructura del repositorio
 

@@ -55,7 +55,7 @@ def ejecutar_newton_raphson(
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Newton-Raphson",
 	capitulo="Raíces de funciones",
-	formula="xᵢ₊₁ = xᵢ − f(xᵢ) / f′(xᵢ)",
+	formula=r"x_{i+1} = x_i - \dfrac{f(x_i)}{f'(x_i)}",
 	descripcion=(
 		"Sigue la recta tangente a f en cada xᵢ hasta donde corta al eje x. "
 		"Necesita la derivada f′(x) escrita a mano."

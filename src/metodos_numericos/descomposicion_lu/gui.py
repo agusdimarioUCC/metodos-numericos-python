@@ -79,7 +79,7 @@ def ejecutar_descomposicion_lu(
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Descomposición LU",
 	capitulo="Sistemas de ecuaciones lineales",
-	formula="[L][U][x] = [b]",
+	formula=r"[L][U][x] = [b]",
 	descripcion=(
 		"Factoriza A = LU con la eliminación de Gauss, resuelve L·y = b hacia adelante y "
 		"U·x = y hacia atrás. También calcula A⁻¹ y el número de condición."

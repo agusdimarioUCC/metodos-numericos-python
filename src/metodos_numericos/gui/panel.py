@@ -18,6 +18,7 @@ from metodos_numericos.formato import (
 )
 from metodos_numericos.gui import tema as colores
 from metodos_numericos.gui.campos import GrillaDeDatos, GrillaDeSistema, TecladoMatematico
+from metodos_numericos.gui.formula import crear_imagen_de_formula
 from metodos_numericos.gui.grafico import LienzoDelGrafico
 from metodos_numericos.gui.matrices import VistaDeMatrices
 from metodos_numericos.gui.tabla import TablaDeIteraciones
@@ -73,7 +74,10 @@ class PanelDeMetodo(ttk.Frame):
 		encabezado = ttk.Frame(self, padding=(px(28), px(20), px(28), px(16)))
 		encabezado.grid(row=0, column=0, columnspan=2, sticky="ew")
 		ttk.Label(encabezado, text=descriptor.nombre_para_mostrar, style="Titulo.TLabel").pack(anchor="w")
-		ttk.Label(encabezado, text=descriptor.formula, style="Formula.TLabel").pack(anchor="w", pady=(px(2), 0))
+		self._imagen_de_la_formula = crear_imagen_de_formula(descriptor.formula, tema)
+		tk.Label(
+			encabezado, image=self._imagen_de_la_formula, background=colores.PAPEL, borderwidth=0
+		).pack(anchor="w", pady=(px(6), 0))
 		ttk.Label(
 			encabezado, text=descriptor.descripcion, style="Suave.TLabel", wraplength=px(720), justify="left"
 		).pack(anchor="w", pady=(px(8), 0))

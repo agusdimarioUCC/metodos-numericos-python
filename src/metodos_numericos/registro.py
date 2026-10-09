@@ -21,6 +21,7 @@ from metodos_numericos.biseccion.gui import DESCRIPTOR as descriptor_de_biseccio
 from metodos_numericos.descomposicion_lu.gui import DESCRIPTOR as descriptor_de_descomposicion_lu
 from metodos_numericos.gauss_seidel.gui import DESCRIPTOR as descriptor_de_gauss_seidel
 from metodos_numericos.interpolacion_newton.gui import DESCRIPTOR as descriptor_de_interpolacion_newton
+from metodos_numericos.interpolacion_lagrange.gui import DESCRIPTOR as descriptor_de_interpolacion_lagrange
 from metodos_numericos import DescriptorDeMetodo
 from metodos_numericos.newton_raphson.gui import DESCRIPTOR as descriptor_de_newton_raphson
 from metodos_numericos.punto_fijo.gui import DESCRIPTOR as descriptor_de_punto_fijo
@@ -36,4 +37,5 @@ METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
 	descriptor_de_descomposicion_lu,
 	descriptor_de_regresion_lineal,
 	descriptor_de_interpolacion_newton,
+	descriptor_de_interpolacion_lagrange,
 )

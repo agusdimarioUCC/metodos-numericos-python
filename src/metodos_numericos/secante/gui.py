@@ -55,7 +55,7 @@ def ejecutar_secante(
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Secante",
 	capitulo="Raíces de funciones",
-	formula="xᵢ₊₁ = xᵢ − f(xᵢ)·(xᵢ₋₁ − xᵢ) / (f(xᵢ₋₁) − f(xᵢ))",
+	formula=r"x_{i+1} = x_i - \dfrac{f(x_i)\,(x_{i-1} - x_i)}{f(x_{i-1}) - f(x_i)}",
 	descripcion=(
 		"Como Newton-Raphson, pero reemplaza la tangente por la recta que pasa por los dos "
 		"últimos puntos. No necesita la derivada ni que f cambie de signo entre x₀ y x₁."

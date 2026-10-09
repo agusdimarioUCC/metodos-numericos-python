@@ -180,7 +180,6 @@ def _configurar_estilos(estilo: ttk.Style, tema: Tema) -> None:
 	estilo.configure("Suave.TLabel", foreground=TINTA_SUAVE)
 	estilo.configure("Chica.TLabel", foreground=TINTA_SUAVE, font=tema.interfaz_chica)
 	estilo.configure("Titulo.TLabel", font=tema.titulo)
-	estilo.configure("Formula.TLabel", font=tema.formula, foreground=TINTA_SUAVE)
 	estilo.configure("Seccion.TLabel", font=tema.interfaz_destacada)
 	estilo.configure("Etiqueta.TLabel", font=tema.matematica)
 	estilo.configure("Encabezado.TLabel", font=tema.numeros_destacados, foreground=TINTA_SUAVE)
