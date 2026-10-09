@@ -2,22 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Callable
-
 import numpy as np
-from metodos_numericos import Iteracion, ReportarIteracion, imprimir_iteracion
+from metodos_numericos import Iteracion, ReportarIteracion
 from numpy.typing import ArrayLike, NDArray
 
 __all__ = [
 	"calcular_inversa",
 	"descomponer_lu",
 	"descomposicion_lu",
-	"leer_matriz_desde_terminal",
-	"main",
 	"norma_renglon_suma",
 	"numero_de_condicion",
 	"resolver_con_lu",
-	"resolver_desde_terminal",
 	"sustitucion_adelante",
 	"sustitucion_atras",
 ]
@@ -223,87 +218,3 @@ def descomposicion_lu(
 	condicion = numero_de_condicion(matriz_coeficientes, inversa)
 
 	return x, inversa, condicion, iteraciones
-
-
-def leer_matriz_desde_terminal(
-		n: int | None = None, *, entrada: Callable[[str], str] = input
-) -> tuple[NDArray[np.float64], NDArray[np.float64]]:
-	"""Lee interactivamente el sistema A x = b desde la terminal.
-
-	Pide el tamaño del sistema (si no se pasa n) y luego, fila por fila,
-	los coeficientes de A separados por espacios y el término independiente
-	b correspondiente. Si una fila no tiene la cantidad de valores
-	esperada, vuelve a pedirla.
-
-	Args:
-		n: Tamaño del sistema (n x n). Si es None, se pregunta al usuario.
-		entrada: Función usada para leer cada línea (por defecto input); se
-			puede inyectar otra función en los tests.
-
-	Returns:
-		Tupla (matriz_coeficientes, terminos_independientes) con la matriz
-		y el vector leídos.
-	"""
-	if n is None:
-		n = int(entrada("Tamaño del sistema (n): ").strip())
-
-	filas: list[list[float]] = []
-	valores_b: list[float] = []
-	for i in range(n):
-		while True:
-			linea = entrada(f"Fila {i + 1} de A ({n} valores separados por espacios): ")
-			valores = linea.split()
-			if len(valores) == n:
-				break
-			print(f"Se esperaban {n} valores, se recibieron {len(valores)}. Probá de nuevo.")
-		filas.append([float(valor) for valor in valores])
-		valores_b.append(float(entrada(f"b[{i + 1}]: ").strip()))
-
-	return np.array(filas, dtype=np.float64), np.array(valores_b, dtype=np.float64)
-
-
-def main() -> None:
-	# Ejemplos 10.1-10.3 del libro.
-	matriz_coeficientes = [
-		[3, -0.1, -0.2],
-		[0.1, 7, -0.3],
-		[0.3, -0.2, 10],
-	]
-	terminos_independientes = [7.85, -19.3, 71.4]
-
-	x, inversa, condicion, iteraciones = descomposicion_lu(
-		matriz_coeficientes, terminos_independientes, reportar_iteracion=imprimir_iteracion
-	)
-	print(f"Solución: {x}")
-	print(f"Inversa:\n{inversa}")
-	print(f"Número de condición: {condicion:.5f}")
-	print(f"Columnas de la inversa calculadas: {iteraciones}")
-	print(f"Verificación (A @ x): {np.array(matriz_coeficientes) @ x}")
-	print(f"b original:           {np.array(terminos_independientes)}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide sistemas por terminal y los resuelve, uno tras otro.
-
-	Después de cada sistema pregunta si se quiere resolver otro; el
-	proceso solo termina cuando la respuesta no es "s".
-	"""
-	while True:
-		matriz_coeficientes, terminos_independientes = leer_matriz_desde_terminal(entrada=entrada)
-
-		x, inversa, condicion, iteraciones = descomposicion_lu(
-			matriz_coeficientes, terminos_independientes, reportar_iteracion=imprimir_iteracion
-		)
-		print(f"Solución: {x}")
-		print(f"Inversa:\n{inversa}")
-		print(f"Número de condición: {condicion:.5f}")
-		print(f"Columnas de la inversa calculadas: {iteraciones}")
-		print(f"Verificación (A @ x): {matriz_coeficientes @ x}")
-
-		otro = entrada("¿Resolver otro sistema? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()

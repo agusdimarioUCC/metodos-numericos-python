@@ -19,16 +19,9 @@ from typing import Callable
 from metodos_numericos import (
 	Iteracion,
 	ReportarIteracion,
-	imprimir_iteracion,
-	leer_puntos_desde_terminal,
-	leer_valor_inicial_desde_terminal,
 )
 
-__all__ = [
-	"interpolacion_newton",
-	"main",
-	"resolver_desde_terminal",
-]
+__all__ = ["interpolacion_newton"]
 
 
 def interpolacion_newton(
@@ -92,42 +85,3 @@ def interpolacion_newton(
 		return resultado
 
 	return coeficientes, polinomio
-
-
-def main() -> None:
-	"""Interpola ln 2 con los 4 puntos del ejemplo 18.2 del Chapra e imprime b₀…b₃ y P₃(2).
-
-	El resultado esperado es P₃(2) = 0,6288 (ln 2 = 0,6931).
-	"""
-	valores_x = [1, 4, 6, 5]
-	valores_y = [0, 1.386294, 1.791759, 1.609438]
-	coeficientes, polinomio = interpolacion_newton(valores_x, valores_y, reportar_iteracion=imprimir_iteracion)
-	for orden, coeficiente in enumerate(coeficientes):
-		print(f"b{orden} = {coeficiente:.6f}")
-	print(f"P(2) = {polinomio(2):.6f}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide los puntos y una x por terminal e interpola, uno tras otro."""
-	while True:
-		valores_x, valores_y = leer_puntos_desde_terminal(entrada=entrada)
-		valor_a_interpolar = leer_valor_inicial_desde_terminal(etiqueta="x a interpolar", entrada=entrada)
-
-		try:
-			coeficientes, polinomio = interpolacion_newton(
-				valores_x, valores_y, reportar_iteracion=imprimir_iteracion
-			)
-		except ValueError as error:
-			print(f"No se puede interpolar: {error}")
-		else:
-			for orden, coeficiente in enumerate(coeficientes):
-				print(f"b{orden} = {coeficiente:.6f}")
-			print(f"P({valor_a_interpolar}) = {polinomio(valor_a_interpolar):.6f}")
-
-		otro = entrada("¿Interpolar otro conjunto de puntos? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()

@@ -5,9 +5,7 @@ from metodos_numericos.gauss_seidel import (
 	NoConvergeError,
 	es_diagonalmente_dominante,
 	gauss_seidel,
-	leer_matriz_desde_terminal,
 	reordenar_para_dominancia_diagonal,
-	resolver_desde_terminal,
 )
 
 
@@ -99,54 +97,3 @@ def test_reordenar_sin_terminos_independientes_devuelve_none():
 def test_reordenar_matriz_no_cuadrada_lanza_error():
 	with pytest.raises(ValueError, match="cuadrada"):
 		reordenar_para_dominancia_diagonal([[1, 2, 3], [4, 5, 6]])
-
-
-def test_leer_matriz_desde_terminal_construye_matriz_y_terminos_independientes():
-	respuestas = iter(["2", "1 2", "5", "3 4", "6"])
-
-	matriz_coeficientes, terminos_independientes = leer_matriz_desde_terminal(
-		entrada=lambda _: next(respuestas)
-	)
-
-	np.testing.assert_array_equal(matriz_coeficientes, [[1, 2], [3, 4]])
-	np.testing.assert_array_equal(terminos_independientes, [5, 6])
-
-
-def test_leer_matriz_desde_terminal_usa_n_dado_sin_preguntarlo():
-	respuestas = iter(["1 2", "5", "3 4", "6"])
-
-	matriz_coeficientes, terminos_independientes = leer_matriz_desde_terminal(
-		tamano_del_sistema=2, entrada=lambda _: next(respuestas)
-	)
-
-	np.testing.assert_array_equal(matriz_coeficientes, [[1, 2], [3, 4]])
-	np.testing.assert_array_equal(terminos_independientes, [5, 6])
-
-
-def test_leer_matriz_desde_terminal_reintenta_fila_mal_formada():
-	respuestas = iter(["1 2", "1", "5"])
-
-	matriz_coeficientes, terminos_independientes = leer_matriz_desde_terminal(
-		tamano_del_sistema=1, entrada=lambda _: next(respuestas)
-	)
-
-	np.testing.assert_array_equal(matriz_coeficientes, [[1]])
-	np.testing.assert_array_equal(terminos_independientes, [5])
-
-
-def test_resolver_desde_terminal_permite_resolver_varios_sistemas(capsys):
-	respuestas = iter(["1", "5", "10", "s", "1", "2", "4", "n"])
-
-	resolver_desde_terminal(entrada=lambda _: next(respuestas))
-
-	salida = capsys.readouterr().out
-	assert salida.count("Solución:") == 2
-
-
-def test_resolver_desde_terminal_se_detiene_si_no_se_pide_otro(capsys):
-	respuestas = iter(["1", "5", "10", "n"])
-
-	resolver_desde_terminal(entrada=lambda _: next(respuestas))
-
-	salida = capsys.readouterr().out
-	assert salida.count("Solución:") == 1

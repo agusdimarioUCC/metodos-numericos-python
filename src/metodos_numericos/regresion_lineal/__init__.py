@@ -19,9 +19,6 @@ from typing import Callable
 from metodos_numericos import (
 	Iteracion,
 	ReportarIteracion,
-	imprimir_iteracion,
-	leer_opcion_desde_terminal,
-	leer_puntos_desde_terminal,
 )
 
 MODELOS_DISPONIBLES: tuple[str, ...] = ("Lineal", "Exponencial", "Potencial", "Crecimiento")
@@ -29,9 +26,7 @@ MODELOS_DISPONIBLES: tuple[str, ...] = ("Lineal", "Exponencial", "Potencial", "C
 __all__ = [
 	"MODELOS_DISPONIBLES",
 	"ajuste_lineal",
-	"main",
 	"regresion_lineal",
-	"resolver_desde_terminal",
 ]
 
 
@@ -167,7 +162,7 @@ def regresion_lineal(
 			`valor_x`, `valor_y` y el par linealizado `u`, `v` (junto con
 			`u_cuadrado` y `uv`) que arma la tabla de sumatorias de los
 			apuntes — el mismo `detalle` sirve para cualquier modelo, y
-			GUI/terminal deciden qué columnas mostrar según `tipo_modelo`.
+			la GUI decide qué columnas mostrar según `tipo_modelo`.
 
 	Returns:
 		Tupla (parametros, funcion): `parametros` siempre trae `"a0"`/`"a1"`
@@ -213,47 +208,3 @@ def regresion_lineal(
 			reportar_iteracion(Iteracion(indice, (valor_x, valor_y), None, detalle))
 
 	return parametros, funcion
-
-
-def main() -> None:
-	"""Ajusta el ejemplo del ejercicio 1.1 de la guía (recta por 7 puntos) e imprime a₀, a₁ y la recta.
-
-	El resultado esperado es y = 0,8393x + 0,0714.
-	"""
-	valores_x = [1, 2, 3, 4, 5, 6, 7]
-	valores_y = [0.5, 2.5, 2.0, 4.0, 3.5, 6.0, 5.5]
-	parametros, _ = regresion_lineal("Lineal", valores_x, valores_y, reportar_iteracion=imprimir_iteracion)
-	print(f"a₀ = {parametros['a0']:.4f}")
-	print(f"a₁ = {parametros['a1']:.4f}")
-	print(f"y = {parametros['a1']:.4f}x + {parametros['a0']:.4f}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide el modelo y los puntos por terminal y los ajusta, uno tras otro.
-
-	Después de cada intento pregunta si se quiere ajustar otro conjunto de
-	puntos; el proceso solo termina cuando la respuesta no es "s".
-	"""
-	while True:
-		tipo_modelo = leer_opcion_desde_terminal("Modelo", MODELOS_DISPONIBLES, entrada=entrada)
-		valores_x, valores_y = leer_puntos_desde_terminal(entrada=entrada)
-
-		try:
-			parametros, _ = regresion_lineal(
-				tipo_modelo, valores_x, valores_y, reportar_iteracion=imprimir_iteracion
-			)
-		except ValueError as error:
-			print(f"No se puede ajustar el modelo {tipo_modelo}: {error}")
-		else:
-			print(f"a₀ = {parametros['a0']:.4f}, a₁ = {parametros['a1']:.4f}")
-			if tipo_modelo != "Lineal":
-				segundo_parametro = "b" if tipo_modelo == "Crecimiento" else "B"
-				print(f"A = {parametros['A']:.4f}, {segundo_parametro} = {parametros[segundo_parametro]:.4f}")
-
-		otro = entrada("¿Ajustar otro conjunto de puntos? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()

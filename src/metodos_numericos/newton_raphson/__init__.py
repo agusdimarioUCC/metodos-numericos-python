@@ -8,24 +8,10 @@ from metodos_numericos import (
 	Iteracion,
 	NoConvergeError,
 	ReportarIteracion,
-	evaluar_funcion,
 	formatear_valor_corto,
-	imprimir_iteracion,
-	leer_funcion_desde_terminal,
-	leer_valor_inicial_desde_terminal,
 )
 
-__all__ = [
-	"NoConvergeError",
-	"derivada_ejemplo",
-	"evaluar_funcion",
-	"funcion_ejemplo",
-	"leer_funcion_desde_terminal",
-	"leer_valor_inicial_desde_terminal",
-	"main",
-	"newton_raphson",
-	"resolver_desde_terminal",
-]
+__all__ = ["NoConvergeError", "newton_raphson"]
 
 
 def newton_raphson(
@@ -52,7 +38,7 @@ def newton_raphson(
 			"valor_derivada": f'(x_i)})` con `error = |x_i - x_(i-1)|` (`None`
 			en la fila 0). La última fila, la de la raíz, no trae `detalle`:
 			como en los apuntes, f y f' ya no se evalúan ahí. Sirve para
-			mostrar el progreso por terminal o en una GUI sin acoplar el
+			mostrar el progreso en la GUI sin acoplar el
 			algoritmo a ninguna de las dos.
 
 	Returns:
@@ -95,57 +81,3 @@ def newton_raphson(
 		aproximacion_actual = aproximacion_siguiente
 
 	raise NoConvergeError.despues_de(maximo_iteraciones, error)
-
-
-def funcion_ejemplo(valor_x: float) -> float:
-	return valor_x**2 - 2
-
-
-def derivada_ejemplo(valor_x: float) -> float:
-	return 2 * valor_x
-
-
-def main() -> None:
-	# Ejemplo: raíz de x^2 - 2 desde x0 = 1.5, converge a sqrt(2) ≈ 1.41421356
-	raiz, iteraciones = newton_raphson(
-		funcion_ejemplo, derivada_ejemplo, 1.5, reportar_iteracion=imprimir_iteracion
-	)
-	print(f"Raíz aproximada: {raiz}")
-	print(f"Iteraciones: {iteraciones}")
-	print(f"f(raíz) = {funcion_ejemplo(raiz)}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide f(x), f'(x) y un valor inicial por terminal y los resuelve, uno tras otro.
-
-	Después de cada intento pregunta si se quiere resolver otro; el
-	proceso solo termina cuando la respuesta no es "s".
-	"""
-	while True:
-		funcion, expresion_funcion = leer_funcion_desde_terminal(etiqueta="f(x)", entrada=entrada)
-		derivada, expresion_derivada = leer_funcion_desde_terminal(etiqueta="f'(x)", entrada=entrada)
-		valor_inicial = leer_valor_inicial_desde_terminal(
-			etiqueta="Valor inicial (x0)", entrada=entrada
-		)
-
-		try:
-			raiz, iteraciones = newton_raphson(
-				funcion, derivada, valor_inicial, reportar_iteracion=imprimir_iteracion
-			)
-		except (ValueError, NoConvergeError) as error:
-			print(
-				f"No se puede aplicar Newton-Raphson con f(x) = {expresion_funcion} "
-				f"y f'(x) = {expresion_derivada}: {error}"
-			)
-		else:
-			print(f"Raíz aproximada de f(x) = {expresion_funcion}: {raiz}")
-			print(f"Iteraciones: {iteraciones}")
-			print(f"f(raíz) = {funcion(raiz)}")
-
-		otro = entrada("¿Resolver otra función? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()

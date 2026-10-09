@@ -3,15 +3,12 @@
 from __future__ import annotations
 
 import itertools
-from typing import Callable
 
 import numpy as np
 from metodos_numericos import (
 	Iteracion,
 	NoConvergeError,
 	ReportarIteracion,
-	imprimir_iteracion,
-	leer_matriz_desde_terminal,
 )
 from numpy.typing import ArrayLike, NDArray
 
@@ -19,10 +16,7 @@ __all__ = [
 	"NoConvergeError",
 	"es_diagonalmente_dominante",
 	"gauss_seidel",
-	"leer_matriz_desde_terminal",
-	"main",
 	"reordenar_para_dominancia_diagonal",
-	"resolver_desde_terminal",
 ]
 
 
@@ -191,72 +185,3 @@ def _detalle_de_fila(
 			None if errores_por_componente is None else float(errores_por_componente[indice - 1])
 		)
 	return detalle
-
-
-def main() -> None:
-	"""Resuelve el sistema de ejemplo fijo e imprime la tabla, la solución y la verificación A·x."""
-	# Sistema de ejemplo (filas reordenadas para que sea diagonalmente
-	# dominante; el orden original no lo era y el método divergía):
-	#  12x -  1y + 3z =  8
-	#   1x +  7y - 3z = -51
-	#   4x -  4y + 9z =  61
-	matriz_coeficientes = [
-		[12, -1, 3],
-		[1, 7, -3],
-		[4, -4, 9],
-	]
-	terminos_independientes = [8, -51, 61]
-
-	print(
-		f"¿A es diagonalmente dominante? {es_diagonalmente_dominante(np.array(matriz_coeficientes))}"
-	)
-
-	solucion, iteraciones = gauss_seidel(
-		matriz_coeficientes, terminos_independientes, reportar_iteracion=imprimir_iteracion
-	)
-	print(f"Solución: {solucion}")
-	print(f"Iteraciones: {iteraciones}")
-	print(f"Verificación (A @ x): {np.array(matriz_coeficientes) @ solucion}")
-	print(f"b original:           {np.array(terminos_independientes)}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide sistemas por terminal y los resuelve, uno tras otro.
-
-	Si el sistema no se puede resolver (diagonal con ceros, no converge,
-	etc.) muestra el motivo y sigue. Después de cada sistema pregunta si se
-	quiere resolver otro; el proceso solo termina cuando la respuesta no es
-	"s".
-	"""
-	while True:
-		filas, terminos_independientes = leer_matriz_desde_terminal(entrada=entrada)
-		matriz_coeficientes = np.array(filas, dtype=np.float64)
-
-		try:
-			if not es_diagonalmente_dominante(matriz_coeficientes):
-				print("A no es diagonalmente dominante, reordenando filas...")
-				matriz_coeficientes, terminos_independientes = reordenar_para_dominancia_diagonal(
-					matriz_coeficientes, terminos_independientes
-				)
-				if es_diagonalmente_dominante(matriz_coeficientes):
-					print("Filas reordenadas: ahora A es diagonalmente dominante.")
-				else:
-					print("No se encontró un orden diagonalmente dominante; puede no converger.")
-
-			solucion, iteraciones = gauss_seidel(
-				matriz_coeficientes, terminos_independientes, reportar_iteracion=imprimir_iteracion
-			)
-		except (ValueError, NoConvergeError) as error:
-			print(f"No se puede aplicar Gauss-Seidel: {error}")
-		else:
-			print(f"Solución: {solucion}")
-			print(f"Iteraciones: {iteraciones}")
-			print(f"Verificación (A @ x): {matriz_coeficientes @ solucion}")
-
-		otro = entrada("¿Resolver otro sistema? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()

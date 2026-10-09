@@ -42,18 +42,6 @@ Abrir la GUI unificada (todos los métodos, con barra lateral):
 uv run metodos-numericos
 ```
 
-Cada método también se puede correr de forma individual, ya sea con un ejemplo predefinido o de forma interactiva por terminal:
-
-```bash
-uv run biseccion                             # ejemplo hardcodeado
-uv run python -c "from metodos_numericos.biseccion import resolver_desde_terminal; resolver_desde_terminal()"
-
-uv run gauss-seidel
-uv run python -c "from metodos_numericos.gauss_seidel import resolver_desde_terminal; resolver_desde_terminal()"
-```
-
-(reemplazar `biseccion`/`gauss-seidel` por `punto-fijo`, `newton-raphson`, `secante`, `descomposicion-lu`, `regresion-lineal` o `interpolacion-newton` según el método).
-
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).

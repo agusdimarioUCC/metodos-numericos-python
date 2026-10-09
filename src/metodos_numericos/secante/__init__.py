@@ -8,23 +8,10 @@ from metodos_numericos import (
 	Iteracion,
 	NoConvergeError,
 	ReportarIteracion,
-	evaluar_funcion,
 	formatear_valor_corto,
-	imprimir_iteracion,
-	leer_funcion_desde_terminal,
-	leer_valor_inicial_desde_terminal,
 )
 
-__all__ = [
-	"NoConvergeError",
-	"evaluar_funcion",
-	"funcion_ejemplo",
-	"leer_funcion_desde_terminal",
-	"leer_valor_inicial_desde_terminal",
-	"main",
-	"resolver_desde_terminal",
-	"secante",
-]
+__all__ = ["NoConvergeError", "secante"]
 
 
 def secante(
@@ -48,9 +35,8 @@ def secante(
 			tabla de la cátedra (i, x_i, f(x_i), |E|): primero las filas 0 y 1
 			de las dos semillas (con `error=None`), y después una por cada
 			aproximación nueva, `Iteracion(i, x_i, |x_i - x_(i-1)|,
-			{"valor_funcion": f(x_i)})`. Sirve para mostrar el progreso por
-			terminal o en una GUI sin acoplar el algoritmo a ninguna de las
-			dos.
+			{"valor_funcion": f(x_i)})`. Sirve para mostrar el progreso
+			en la GUI sin acoplar el algoritmo a ella.
 
 	Returns:
 		Tupla (raiz, iteraciones) con la raíz aproximada y el número de
@@ -110,53 +96,3 @@ def secante(
 		valor_funcion_actual = valor_funcion_siguiente
 
 	raise NoConvergeError.despues_de(maximo_iteraciones, error)
-
-
-def funcion_ejemplo(valor_x: float) -> float:
-	return valor_x**2 - 2
-
-
-def main() -> None:
-	# Ejemplo: raíz de x^2 - 2 desde x0 = 1 y x1 = 2, converge a sqrt(2) ≈ 1.41421356
-	raiz, iteraciones = secante(funcion_ejemplo, 1, 2, reportar_iteracion=imprimir_iteracion)
-	print(f"Raíz aproximada: {raiz}")
-	print(f"Iteraciones: {iteraciones}")
-	print(f"f(raíz) = {funcion_ejemplo(raiz)}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide f(x) y dos aproximaciones iniciales por terminal y las resuelve, una tras otra.
-
-	Después de cada intento pregunta si se quiere resolver otro; el
-	proceso solo termina cuando la respuesta no es "s".
-	"""
-	while True:
-		funcion, expresion = leer_funcion_desde_terminal(etiqueta="f(x)", entrada=entrada)
-		primera_aproximacion = leer_valor_inicial_desde_terminal(
-			etiqueta="Primera aproximación (x0)", entrada=entrada
-		)
-		segunda_aproximacion = leer_valor_inicial_desde_terminal(
-			etiqueta="Segunda aproximación (x1)", entrada=entrada
-		)
-
-		try:
-			raiz, iteraciones = secante(
-				funcion,
-				primera_aproximacion,
-				segunda_aproximacion,
-				reportar_iteracion=imprimir_iteracion,
-			)
-		except (ValueError, NoConvergeError) as error:
-			print(f"No se puede aplicar la secante con f(x) = {expresion}: {error}")
-		else:
-			print(f"Raíz aproximada de f(x) = {expresion}: {raiz}")
-			print(f"Iteraciones: {iteraciones}")
-			print(f"f(raíz) = {funcion(raiz)}")
-
-		otro = entrada("¿Resolver otra función? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()

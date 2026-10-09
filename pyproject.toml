@@ -11,14 +11,6 @@ dependencies = [
 
 [project.scripts]
 metodos-numericos = "metodos_numericos.app:iniciar_gui"
-biseccion = "metodos_numericos.biseccion:main"
-punto-fijo = "metodos_numericos.punto_fijo:main"
-newton-raphson = "metodos_numericos.newton_raphson:main"
-secante = "metodos_numericos.secante:main"
-gauss-seidel = "metodos_numericos.gauss_seidel:main"
-descomposicion-lu = "metodos_numericos.descomposicion_lu:main"
-regresion-lineal = "metodos_numericos.regresion_lineal:main"
-interpolacion-newton = "metodos_numericos.interpolacion_newton:main"
 
 [dependency-groups]
 dev = [

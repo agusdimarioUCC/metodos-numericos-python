@@ -8,23 +8,10 @@ from metodos_numericos import (
 	Iteracion,
 	NoConvergeError,
 	ReportarIteracion,
-	evaluar_funcion,
 	formatear_valor_corto,
-	imprimir_iteracion,
-	leer_funcion_desde_terminal,
-	leer_valor_inicial_desde_terminal,
 )
 
-__all__ = [
-	"NoConvergeError",
-	"biseccion",
-	"evaluar_funcion",
-	"funcion_ejemplo",
-	"leer_funcion_desde_terminal",
-	"leer_intervalo_desde_terminal",
-	"main",
-	"resolver_desde_terminal",
-]
+__all__ = ["NoConvergeError", "biseccion"]
 
 
 def biseccion(
@@ -51,8 +38,8 @@ def biseccion(
 			`"extremo_superior"`, `"valor_extremo_inferior"`,
 			`"valor_punto_medio"` y `"producto"` (f(a)·f(c)). La primera
 			fila tiene `error=None` porque todavía no hay un punto medio
-			anterior. Sirve para mostrar el progreso por terminal o en una
-			GUI sin acoplar el algoritmo a ninguna de las dos.
+			anterior. Sirve para mostrar el progreso en la GUI
+			sin acoplar el algoritmo a ella.
 
 	Returns:
 		Tupla (raiz, iteraciones) con la raíz aproximada y el número de
@@ -118,70 +105,3 @@ def biseccion(
 			valor_extremo_inferior = valor_punto_medio
 
 	raise NoConvergeError.despues_de(maximo_iteraciones, error)
-
-
-def leer_intervalo_desde_terminal(*, entrada: Callable[[str], str] = input) -> tuple[float, float]:
-	"""Lee el intervalo [extremo_inferior, extremo_superior] desde terminal.
-
-	Vuelve a pedir cada extremo si no es un número, y los dos si
-	extremo_inferior no es menor que extremo_superior.
-
-	Args:
-		entrada: Función usada para leer cada línea (por defecto `input`);
-			se puede inyectar otra función en los tests.
-
-	Returns:
-		Tupla (extremo_inferior, extremo_superior).
-	"""
-	while True:
-		extremo_inferior = leer_valor_inicial_desde_terminal(
-			etiqueta="Extremo inferior del intervalo", entrada=entrada
-		)
-		extremo_superior = leer_valor_inicial_desde_terminal(
-			etiqueta="Extremo superior del intervalo", entrada=entrada
-		)
-		if extremo_inferior < extremo_superior:
-			return extremo_inferior, extremo_superior
-		print("El extremo inferior debe ser menor que el extremo superior. Probá de nuevo.")
-
-
-def funcion_ejemplo(valor_x: float) -> float:
-	return valor_x**2 - 2
-
-
-def main() -> None:
-	# Ejemplo: raíz de x^2 - 2 en [1, 2], converge a sqrt(2) ≈ 1.41421356
-	raiz, iteraciones = biseccion(funcion_ejemplo, 1, 2, reportar_iteracion=imprimir_iteracion)
-	print(f"Raíz aproximada: {raiz}")
-	print(f"Iteraciones: {iteraciones}")
-	print(f"f(raíz) = {funcion_ejemplo(raiz)}")
-
-
-def resolver_desde_terminal(*, entrada: Callable[[str], str] = input) -> None:
-	"""Pide funciones e intervalos por terminal y los resuelve, uno tras otro.
-
-	Después de cada intento pregunta si se quiere resolver otro; el
-	proceso solo termina cuando la respuesta no es "s".
-	"""
-	while True:
-		funcion, expresion = leer_funcion_desde_terminal(entrada=entrada)
-		extremo_inferior, extremo_superior = leer_intervalo_desde_terminal(entrada=entrada)
-
-		try:
-			raiz, iteraciones = biseccion(
-				funcion, extremo_inferior, extremo_superior, reportar_iteracion=imprimir_iteracion
-			)
-		except ValueError as error:
-			print(f"No se puede aplicar bisección con f(x) = {expresion}: {error}")
-		else:
-			print(f"Raíz aproximada de f(x) = {expresion}: {raiz}")
-			print(f"Iteraciones: {iteraciones}")
-			print(f"f(raíz) = {funcion(raiz)}")
-
-		otro = entrada("¿Resolver otra función? (s/n): ").strip().lower()
-		if otro != "s":
-			break
-
-
-if __name__ == "__main__":
-	resolver_desde_terminal()
