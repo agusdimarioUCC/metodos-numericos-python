@@ -15,3 +15,6 @@ wheels/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Copyrighted textbook, kept locally only
+Metodos_numericos_para_Ingenieros_7ma_Ed.pdf
