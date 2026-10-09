@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import math
 import tkinter as tk
-from tkinter import ttk
+from tkinter import filedialog, messagebox, ttk
+
+from PIL import ImageGrab
 
 from metodos_numericos.descriptor import DescriptorDeMetodo, ResultadoDeMetodo, TipoDeCampo, TipoDeGrafico
 from metodos_numericos.errores import EntradaInvalidaError, NoConvergeError
@@ -227,6 +229,7 @@ class PanelDeMetodo(ttk.Frame):
 		ttk.Button(datos, text="Calcular", style="Primario.TButton", command=self._calcular).pack(
 			fill="x", pady=(px(20), 0)
 		)
+		ttk.Button(datos, text="Guardar como JPG", command=self._guardar_como_jpg).pack(fill="x", pady=(px(8), 0))
 		self._bloque_de_resultado = ttk.Frame(datos)
 		self._bloque_de_resultado.pack(fill="x", pady=(px(18), 0))
 
@@ -292,6 +295,33 @@ class PanelDeMetodo(ttk.Frame):
 			self._tabla.pack(fill="both", expand=True, padx=px(8), pady=(0, px(4)))
 			self._tabla.al_seleccionar = self._al_seleccionar_fila
 			divisor.add(contenedor_de_tabla, weight=2)
+
+	# --- Guardar como imagen ----------------------------------------------------
+
+	def _guardar_como_jpg(self) -> None:
+		"""Guarda una captura del panel tal como se ve (datos, resultado, gráfico y tabla).
+
+		Es una captura de pantalla: las filas de la tabla que quedan fuera del
+		desplazamiento no salen. La app es DPI-aware, así que las coordenadas
+		de Tk ya son píxeles físicos.
+		"""
+		ruta = filedialog.asksaveasfilename(
+			parent=self, defaultextension=".jpg", filetypes=[("Imagen JPG", "*.jpg")],
+			initialfile=f"{self._descriptor.nombre_para_mostrar}.jpg",
+		)
+		if not ruta:
+			return
+		self.update()  # que el diálogo termine de cerrarse antes de capturar
+
+		def capturar() -> None:
+			izquierda, arriba = self.winfo_rootx(), self.winfo_rooty()
+			caja = (izquierda, arriba, izquierda + self.winfo_width(), arriba + self.winfo_height())
+			try:
+				ImageGrab.grab(bbox=caja, all_screens=True).convert("RGB").save(ruta, quality=95)
+			except OSError as error:
+				messagebox.showerror("No se pudo guardar", str(error), parent=self)
+
+		self.after(150, capturar)
 
 	# --- Lectura de datos -------------------------------------------------------
 
