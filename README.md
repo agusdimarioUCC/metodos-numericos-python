@@ -42,6 +42,18 @@ Abrir la GUI unificada (todos los métodos, con barra lateral):
 uv run metodos-numericos
 ```
 
+Si el script de consola llegara a fallar, hay una alternativa equivalente:
+
+```bash
+uv run python -m metodos_numericos
+```
+
+Correr los tests (los de Gauss-Seidel). Se usa `python -m pytest` porque `uv run pytest` falla cuando la ruta del repo tiene tildes:
+
+```bash
+uv run python -m pytest
+```
+
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).
