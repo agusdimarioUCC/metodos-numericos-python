@@ -71,6 +71,27 @@ def formatear_valor_corto(valor: float) -> str:
 	return f"{_con_coma_y_menos(mantisa)} × {potencia}"
 
 
+def formatear_polinomio(coeficientes: tuple[float, ...], decimales: int = 4) -> str:
+	"""Escribe a₀ + a₁x + … + aₙxⁿ de mayor a menor grado: `0,8455x³ − 1,0601x² + 1,9328x + 1,0000`.
+
+	`coeficientes` va en orden ascendente (a₀ primero). Los términos que
+	redondean a cero con `decimales` se omiten.
+	"""
+	texto = ""
+	for grado in range(len(coeficientes) - 1, -1, -1):
+		magnitud = formatear_numero(abs(coeficientes[grado]), decimales)
+		if float(magnitud.replace(",", ".")) == 0:
+			continue
+		potencia = "" if grado == 0 else "x" if grado == 1 else "x" + str(grado).translate(_SUPERINDICES)
+		negativo = coeficientes[grado] < 0
+		if texto:
+			texto += f" {SIGNO_MENOS if negativo else '+'} "
+		elif negativo:
+			texto = SIGNO_MENOS
+		texto += magnitud + potencia
+	return texto or "0"
+
+
 def formatear_signo(valor: float) -> str:
 	"""Muestra solo el signo de `valor`, como la columna f(a)·f(c) de bisección en los apuntes."""
 	if valor < 0:

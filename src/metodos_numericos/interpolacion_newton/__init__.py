@@ -21,7 +21,7 @@ from metodos_numericos import (
 	ReportarIteracion,
 )
 
-__all__ = ["interpolacion_newton"]
+__all__ = ["desarrollar_polinomio", "interpolacion_newton"]
 
 
 def interpolacion_newton(
@@ -85,3 +85,23 @@ def interpolacion_newton(
 		return resultado
 
 	return coeficientes, polinomio
+
+
+def desarrollar_polinomio(coeficientes: Sequence[float], valores_x: Sequence[float]) -> tuple[float, ...]:
+	"""Pasa Pₙ de la forma de Newton (b₀…bₙ sobre los nodos x₀…xₙ₋₁) a potencias de x.
+
+	Es la evaluación anidada de `interpolacion_newton`, pero con polinomios
+	en vez de números: se arranca con bₙ y, de k = n−1 a 0, se multiplica
+	por (x − xₖ) y se suma bₖ.
+
+	Returns:
+		Los coeficientes a₀…aₙ de a₀ + a₁x + … + aₙxⁿ, en orden ascendente.
+	"""
+	desarrollado = [coeficientes[-1]]
+	for orden in range(len(coeficientes) - 2, -1, -1):
+		# (a₀ + a₁x + …)·(x − xₖ): cada coeficiente sube un grado y se le resta xₖ veces el suyo.
+		desarrollado = [0.0, *desarrollado]
+		for grado in range(len(desarrollado) - 1):
+			desarrollado[grado] -= valores_x[orden] * desarrollado[grado + 1]
+		desarrollado[0] += coeficientes[orden]
+	return tuple(desarrollado)

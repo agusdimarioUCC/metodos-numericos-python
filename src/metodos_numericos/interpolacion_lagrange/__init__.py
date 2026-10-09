@@ -17,7 +17,7 @@ from metodos_numericos import (
 	ReportarIteracion,
 )
 
-__all__ = ["interpolacion_lagrange"]
+__all__ = ["desarrollar_polinomio", "interpolacion_lagrange"]
 
 
 def interpolacion_lagrange(
@@ -76,3 +76,29 @@ def interpolacion_lagrange(
 			reportar_iteracion(Iteracion(indice, (valor_xi, valor_yi), None, detalle))
 
 	return valor, polinomio
+
+
+def desarrollar_polinomio(valores_x: Sequence[float], valores_y: Sequence[float]) -> tuple[float, ...]:
+	"""Escribe Pₙ = Σ Lᵢ(x)·yᵢ en potencias de x, como se hace a mano en el pizarrón.
+
+	Cada Lᵢ se arma multiplicando los (x − xⱼ) con j ≠ i y dividiendo por
+	Π (xᵢ − xⱼ); después se suman los Lᵢ·yᵢ coeficiente a coeficiente.
+
+	Returns:
+		Los coeficientes a₀…aₙ de a₀ + a₁x + … + aₙxⁿ, en orden ascendente.
+	"""
+	desarrollado = [0.0] * len(valores_x)
+	for indice, (valor_xi, valor_yi) in enumerate(zip(valores_x, valores_y)):
+		numerador = [1.0]
+		denominador = 1.0
+		for otro, valor_xj in enumerate(valores_x):
+			if otro == indice:
+				continue
+			# (a₀ + a₁x + …)·(x − xⱼ): cada coeficiente sube un grado y se le resta xⱼ veces el suyo.
+			numerador = [0.0, *numerador]
+			for grado in range(len(numerador) - 1):
+				numerador[grado] -= valor_xj * numerador[grado + 1]
+			denominador *= valor_xi - valor_xj
+		for grado, coeficiente in enumerate(numerador):
+			desarrollado[grado] += coeficiente * valor_yi / denominador
+	return tuple(desarrollado)

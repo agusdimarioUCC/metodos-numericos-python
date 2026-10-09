@@ -183,6 +183,8 @@ class ResultadoDeMetodo:
 	los (xᵢ, yᵢ) crudos a dispersar en el gráfico (ver
 	`TipoDeGrafico.DISPERSION_Y_AJUSTE`). `punto_de_resultado` es el par
 	(x, valor) que se marca en ámbar sobre esa curva (la interpolación).
+	`polinomio_desarrollado` son los coeficientes a₀…aₙ (orden
+	ascendente) del polinomio interpolante escrito en potencias de x.
 	"""
 
 	etiqueta_del_valor: str
@@ -195,6 +197,7 @@ class ResultadoDeMetodo:
 	funcion_para_grafico: Callable[[float], float] | None = None
 	puntos_de_datos: tuple[tuple[float, float], ...] = ()
 	punto_de_resultado: tuple[float, float] | None = None
+	polinomio_desarrollado: tuple[float, ...] = ()
 
 
 EjecutarMetodo = Callable[[dict[str, object], ReportarIteracion], ResultadoDeMetodo]

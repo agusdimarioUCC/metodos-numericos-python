@@ -15,7 +15,7 @@ from metodos_numericos import (
 	columnas_fijas,
 )
 
-from metodos_numericos.interpolacion_lagrange import interpolacion_lagrange
+from metodos_numericos.interpolacion_lagrange import desarrollar_polinomio, interpolacion_lagrange
 
 
 def ejecutar_interpolacion_lagrange(
@@ -33,6 +33,7 @@ def ejecutar_interpolacion_lagrange(
 		funcion_para_grafico=polinomio,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
 		punto_de_resultado=(valores["valor_a_interpolar"], valor),
+		polinomio_desarrollado=desarrollar_polinomio(valores_x, valores_y),
 	)
 
 

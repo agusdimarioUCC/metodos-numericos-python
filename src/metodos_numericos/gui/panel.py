@@ -12,6 +12,7 @@ from metodos_numericos.expresiones import compilar_funcion
 from metodos_numericos.formato import (
 	formatear_numero,
 	formatear_numero_legible,
+	formatear_polinomio,
 	formatear_valor_corto,
 	leer_numero,
 	subindice,
@@ -510,6 +511,13 @@ class PanelDeMetodo(ttk.Frame):
 
 			if self._descriptor.usa_criterio_de_parada:
 				ttk.Label(bloque, text=self._resumen_de_iteraciones(decimales), wraplength=ancho_de_texto, justify="left").pack(anchor="w")
+			if resultado.polinomio_desarrollado:
+				grado = len(resultado.polinomio_desarrollado) - 1
+				ttk.Label(
+					bloque,
+					text=f"P{subindice(grado)}(x) = {formatear_polinomio(resultado.polinomio_desarrollado, decimales)}",
+					font=self._tema.numeros, wraplength=ancho_de_texto, justify="left",
+				).pack(anchor="w", pady=(0, px(4)))
 			for verificacion in resultado.verificaciones:
 				texto = f"{verificacion.etiqueta} = {formatear_numero_legible(verificacion.valor, decimales)}"
 				if verificacion.esperado is not None:

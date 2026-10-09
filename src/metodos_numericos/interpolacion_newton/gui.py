@@ -16,7 +16,7 @@ from metodos_numericos import (
 	subindice,
 )
 
-from metodos_numericos.interpolacion_newton import interpolacion_newton
+from metodos_numericos.interpolacion_newton import desarrollar_polinomio, interpolacion_newton
 
 
 def ejecutar_interpolacion_newton(
@@ -36,6 +36,7 @@ def ejecutar_interpolacion_newton(
 		funcion_para_grafico=polinomio,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
 		punto_de_resultado=(valor_a_interpolar, valor_interpolado),
+		polinomio_desarrollado=desarrollar_polinomio(coeficientes, valores_x),
 	)
 
 
