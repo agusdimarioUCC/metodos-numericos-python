@@ -27,6 +27,7 @@ from metodos_numericos.newton_raphson.gui import DESCRIPTOR as descriptor_de_new
 from metodos_numericos.punto_fijo.gui import DESCRIPTOR as descriptor_de_punto_fijo
 from metodos_numericos.regresion_lineal.gui import DESCRIPTOR as descriptor_de_regresion_lineal
 from metodos_numericos.secante.gui import DESCRIPTOR as descriptor_de_secante
+from metodos_numericos.trazadoras_cubicas.gui import DESCRIPTOR as descriptor_de_trazadoras_cubicas
 
 METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
 	descriptor_de_biseccion,
@@ -38,4 +39,5 @@ METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...] = (
 	descriptor_de_regresion_lineal,
 	descriptor_de_interpolacion_newton,
 	descriptor_de_interpolacion_lagrange,
+	descriptor_de_trazadoras_cubicas,
 )

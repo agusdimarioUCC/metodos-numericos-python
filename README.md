@@ -13,6 +13,7 @@ Implementaciones en Python de métodos numéricos para el Taller de Métodos Num
 - **Regresión lineal** (`regresion_lineal/`) — mínimos cuadrados, con linealización para modelos exponencial, potencial y de crecimiento.
 - **Interpolación de Newton** (`interpolacion_newton/`) — polinomio por diferencias divididas.
 - **Interpolación de Lagrange** (`interpolacion_lagrange/`) — polinomio como suma de Lᵢ(x)·yᵢ, sin diferencias divididas.
+- **Trazadoras cúbicas** (`trazadoras_cubicas/`) — natural y condicionada, un polinomio cúbico por tramo.
 
 ## Estructura del repositorio
 
