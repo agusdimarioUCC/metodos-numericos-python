@@ -47,7 +47,7 @@ Tests:
 uv run python -m pytest                      # the legacy gauss_seidel tests (see Testing policy); `uv run pytest` fails because the repo path has an accent (uv's trampoline can't canonicalize it)
 ```
 
-`uv run metodos-numericos` is the only entry point: the methods have no terminal interface and no console scripts of their own.
+`uv run metodos-numericos` is the only entry point: the methods have no terminal interface and no console scripts of their own. It's declared under `[project.gui-scripts]` (not `scripts`), so on Windows the generated `.exe` runs under `pythonw` with no console window. `uv tool install --editable .` puts that `.exe` on the PATH (`~/.local/bin`) for a double-click launch that still picks up code edits; a GUI script hides startup tracebacks, so debug with `uv run python -m metodos_numericos`.
 
 ## Architecture: shared code
 
@@ -77,7 +77,7 @@ The top level of `src/metodos_numericos/`:
 `registro.py`, `app.py` and `__main__.py` in `src/metodos_numericos/` are the app: the only modules that know about all ten methods.
 
 - `registro.py` — imports each method's `DESCRIPTOR` from its `gui` module and lists them in `METODOS_DISPONIBLES: tuple[DescriptorDeMetodo, ...]`; the tuple's order is the sidebar order — keep a new method next to the others of its `capitulo`, since `BarraLateral` writes a chapter header every time the chapter changes from the previous entry. Registration is explicit (plain imports), not automatic discovery — forgetting to register a method just means it doesn't show up.
-- `app.py` — `iniciar_gui()`, the console-script target (`metodos-numericos = "metodos_numericos.app:iniciar_gui"`): builds a `VentanaMetodosNumericos(METODOS_DISPONIBLES)` and calls `.ejecutar()`.
+- `app.py` — `iniciar_gui()`, the GUI-script target (`metodos-numericos = "metodos_numericos.app:iniciar_gui"`): builds a `VentanaMetodosNumericos(METODOS_DISPONIBLES)` and calls `.ejecutar()`.
 - `__main__.py` — a fallback so `uv run python -m metodos_numericos` also works.
 
 The package's `__init__.py` must **not** import `registro`/`app` (or any method): every method imports `metodos_numericos`, so that would load all ten methods (and numpy) as soon as any single method is imported, and risk circular imports.

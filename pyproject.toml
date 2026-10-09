@@ -9,7 +9,7 @@ dependencies = [
     "numpy>=2.5.2",
 ]
 
-[project.scripts]
+[project.gui-scripts]
 metodos-numericos = "metodos_numericos.app:iniciar_gui"
 
 [dependency-groups]

@@ -44,7 +44,15 @@ Abrir la GUI unificada (todos los métodos, con barra lateral):
 uv run metodos-numericos
 ```
 
-Si el script de consola llegara a fallar, hay una alternativa equivalente:
+Para abrirla con doble clic, sin terminal, instalala una vez como herramienta de uv (con `--editable`, los cambios al código se ven al volver a abrirla):
+
+```bash
+uv tool install --editable .
+```
+
+Eso deja `metodos-numericos` en el PATH: se abre desde Win+R, el buscador de Windows o un acceso directo, sin consola.
+
+Si el script llegara a fallar (o para ver un error al arrancar, que sin consola no se muestra), hay una alternativa equivalente:
 
 ```bash
 uv run python -m metodos_numericos
