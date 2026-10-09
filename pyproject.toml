@@ -1,3 +1,30 @@
-[tool.uv.workspace]
-members = ["*"]
-exclude = [".idea"]
+[project]
+name = "metodos-numericos"
+version = "0.1.0"
+description = "Métodos numéricos del Taller de Métodos Numéricos, con una GUI unificada en Tkinter"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "matplotlib>=3.11.1",
+    "numpy>=2.5.2",
+]
+
+[project.scripts]
+metodos-numericos = "metodos_numericos.app:iniciar_gui"
+biseccion = "metodos_numericos.biseccion:main"
+punto-fijo = "metodos_numericos.punto_fijo:main"
+newton-raphson = "metodos_numericos.newton_raphson:main"
+secante = "metodos_numericos.secante:main"
+gauss-seidel = "metodos_numericos.gauss_seidel:main"
+descomposicion-lu = "metodos_numericos.descomposicion_lu:main"
+regresion-lineal = "metodos_numericos.regresion_lineal:main"
+interpolacion-newton = "metodos_numericos.interpolacion_newton:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.9,<0.13.0"]
+build-backend = "uv_build"

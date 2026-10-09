@@ -10,14 +10,16 @@ Implementaciones en Python de métodos numéricos para el Taller de Métodos Num
 - **Secante** (`secante/`) — Newton-Raphson sin derivada analítica.
 - **Gauss-Seidel** (`gauss_seidel/`) — resolución iterativa de sistemas `Ax = b`, con detección/reordenamiento por dominancia diagonal.
 - **Descomposición LU** (`descomposicion_lu/`) — resolución directa de `Ax = b`, cálculo de `A⁻¹` y número de condición.
+- **Regresión lineal** (`regresion_lineal/`) — mínimos cuadrados, con linealización para modelos exponencial, potencial y de crecimiento.
+- **Interpolación de Newton** (`interpolacion_newton/`) — polinomio por diferencias divididas.
 
 ## Estructura del repositorio
 
-Es un **workspace de `uv`**: un solo `.venv` y un solo `uv.lock` en la raíz para todos los subproyectos (`[tool.uv.workspace] members = ["*"]`).
+Es un solo proyecto de `uv` (un `pyproject.toml`, un `uv.lock`, un `.venv`) con un único paquete, `src/metodos_numericos/`:
 
-- `metodos_numericos_base/` — librería compartida: manejo de errores, formato numérico al estilo de la cátedra, lectura/validación de expresiones `f(x)` ingresadas por el usuario, el contrato declarativo `DescriptorDeMetodo` que cada método expone, y el toolkit de GUI en Tkinter (`metodos_numericos_base.gui`).
-- `biseccion/`, `punto_fijo/`, `newton_raphson/`, `secante/`, `gauss_seidel/`, `descomposicion_lu/` — cada uno con su propio `src/<paquete>/`, su solver desacoplado de la interfaz, y un `gui.py` que solo describe sus campos/columnas/gráfico (ninguno importa `tkinter`).
-- `metodos_numericos_gui/` — la app que une todo: es el único paquete que conoce los seis métodos (`registro.py`) e instancia la ventana principal.
+- La raíz del paquete es el código compartido: manejo de errores, formato numérico al estilo de la cátedra, lectura/validación de expresiones `f(x)` ingresadas por el usuario, el contrato declarativo `DescriptorDeMetodo` que cada método expone, y el toolkit de GUI en Tkinter (`metodos_numericos.gui`).
+- Cada método es un subpaquete (`metodos_numericos/biseccion/`, `metodos_numericos/secante/`, …) con su solver desacoplado de la interfaz en `__init__.py` y un `gui.py` que solo describe sus campos/columnas/gráfico (ninguno importa `tkinter`).
+- `registro.py` y `app.py` son la app que une todo: `registro.py` es el único módulo que conoce todos los métodos y `app.py` instancia la ventana principal.
 
 Para más detalle sobre la arquitectura interna, ver `CLAUDE.md`.
 
@@ -44,13 +46,13 @@ Cada método también se puede correr de forma individual, ya sea con un ejemplo
 
 ```bash
 uv run biseccion                             # ejemplo hardcodeado
-uv run python -c "from biseccion import resolver_desde_terminal; resolver_desde_terminal()"
+uv run python -c "from metodos_numericos.biseccion import resolver_desde_terminal; resolver_desde_terminal()"
 
 uv run gauss-seidel
-uv run python -c "from gauss_seidel import resolver_desde_terminal; resolver_desde_terminal()"
+uv run python -c "from metodos_numericos.gauss_seidel import resolver_desde_terminal; resolver_desde_terminal()"
 ```
 
-(reemplazar `biseccion`/`gauss-seidel` por `punto-fijo`, `newton-raphson`, `secante` o `descomposicion-lu` según el método).
+(reemplazar `biseccion`/`gauss-seidel` por `punto-fijo`, `newton-raphson`, `secante`, `descomposicion-lu`, `regresion-lineal` o `interpolacion-newton` según el método).
 
 ## Licencia
 

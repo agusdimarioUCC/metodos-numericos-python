@@ -2,31 +2,6 @@ version = 1
 revision = 3
 requires-python = ">=3.14"
 
-[manifest]
-members = [
-    "biseccion",
-    "descomposicion-lu",
-    "gauss-seidel",
-    "interpolacion-newton",
-    "metodos-numericos-base",
-    "metodos-numericos-gui",
-    "newton-raphson",
-    "punto-fijo",
-    "regresion-lineal",
-    "secante",
-]
-
-[[package]]
-name = "biseccion"
-version = "0.1.0"
-source = { editable = "biseccion" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "metodos-numericos-base", editable = "metodos_numericos_base" }]
-
 [[package]]
 name = "colorama"
 version = "0.4.6"
@@ -79,21 +54,6 @@ wheels = [
 ]
 
 [[package]]
-name = "descomposicion-lu"
-version = "0.1.0"
-source = { editable = "descomposicion_lu" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-    { name = "numpy" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "metodos-numericos-base", editable = "metodos_numericos_base" },
-    { name = "numpy", specifier = ">=2.5.2" },
-]
-
-[[package]]
 name = "fonttools"
 version = "4.65.0"
 source = { registry = "https://pypi.org/simple" }
@@ -135,29 +95,6 @@ wheels = [
 ]
 
 [[package]]
-name = "gauss-seidel"
-version = "0.1.0"
-source = { editable = "gauss_seidel" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-    { name = "numpy" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "metodos-numericos-base", editable = "metodos_numericos_base" },
-    { name = "numpy", specifier = ">=2.5.2" },
-]
-
-[package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=9.1.1" }]
-
-[[package]]
 name = "iniconfig"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -165,17 +102,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/72/34/14ca021ce8e5dfedc
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cb/b1/3846dd7f199d53cb17f49cba7e651e9ce294d8497c8c150530ed11865bb8/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12", size = 7484, upload-time = "2025-10-18T21:55:41.639Z" },
 ]
-
-[[package]]
-name = "interpolacion-newton"
-version = "0.1.0"
-source = { editable = "interpolacion_newton" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "metodos-numericos-base", editable = "metodos_numericos_base" }]
 
 [[package]]
 name = "kiwisolver"
@@ -285,55 +211,27 @@ wheels = [
 ]
 
 [[package]]
-name = "metodos-numericos-base"
+name = "metodos-numericos"
 version = "0.1.0"
-source = { editable = "metodos_numericos_base" }
+source = { editable = "." }
 dependencies = [
     { name = "matplotlib" },
+    { name = "numpy" },
 ]
 
-[package.metadata]
-requires-dist = [{ name = "matplotlib", specifier = ">=3.11.1" }]
-
-[[package]]
-name = "metodos-numericos-gui"
-version = "0.1.0"
-source = { editable = "metodos_numericos_gui" }
-dependencies = [
-    { name = "biseccion" },
-    { name = "descomposicion-lu" },
-    { name = "gauss-seidel" },
-    { name = "interpolacion-newton" },
-    { name = "metodos-numericos-base" },
-    { name = "newton-raphson" },
-    { name = "punto-fijo" },
-    { name = "regresion-lineal" },
-    { name = "secante" },
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "biseccion", editable = "biseccion" },
-    { name = "descomposicion-lu", editable = "descomposicion_lu" },
-    { name = "gauss-seidel", editable = "gauss_seidel" },
-    { name = "interpolacion-newton", editable = "interpolacion_newton" },
-    { name = "metodos-numericos-base", editable = "metodos_numericos_base" },
-    { name = "newton-raphson", editable = "newton_raphson" },
-    { name = "punto-fijo", editable = "punto_fijo" },
-    { name = "regresion-lineal", editable = "regresion_lineal" },
-    { name = "secante", editable = "secante" },
+    { name = "matplotlib", specifier = ">=3.11.1" },
+    { name = "numpy", specifier = ">=2.5.2" },
 ]
 
-[[package]]
-name = "newton-raphson"
-version = "0.1.0"
-source = { editable = "newton_raphson" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "metodos-numericos-base", editable = "metodos_numericos_base" }]
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=9.1.1" }]
 
 [[package]]
 name = "numpy"
@@ -455,17 +353,6 @@ wheels = [
 ]
 
 [[package]]
-name = "punto-fijo"
-version = "0.1.0"
-source = { editable = "punto_fijo" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "metodos-numericos-base", editable = "metodos_numericos_base" }]
-
-[[package]]
 name = "pygments"
 version = "2.21.0"
 source = { registry = "https://pypi.org/simple" }
@@ -510,28 +397,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/66/c0/0c8b6ad9f17a802ee
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ec/57/56b9bcc3c9c6a792fcbaf139543cee77261f3651ca9da0c93f5c1221264b/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427", size = 229892, upload-time = "2024-03-01T18:36:18.57Z" },
 ]
-
-[[package]]
-name = "regresion-lineal"
-version = "0.1.0"
-source = { editable = "regresion_lineal" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "metodos-numericos-base", editable = "metodos_numericos_base" }]
-
-[[package]]
-name = "secante"
-version = "0.1.0"
-source = { editable = "secante" }
-dependencies = [
-    { name = "metodos-numericos-base" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "metodos-numericos-base", editable = "metodos_numericos_base" }]
 
 [[package]]
 name = "six"
