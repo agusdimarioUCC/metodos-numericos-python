@@ -15,7 +15,7 @@ Always use `uv` for dependency and environment management in these projects — 
 ## Versioning policy
 
 - Always target the newest stable Python release. `requires-python` in `pyproject.toml` should have its lower bound raised to match (currently `>=3.15`); don't add an upper bound.
-- Always run with the newest resolvable versions of every dependency. Keep dependency specifiers as lower bounds only (`>=`), never pin exact versions or add upper bounds (the one exception is `[build-system] requires = ["uv_build>=…,<…"]`, which is uv's own generated template — leave it), and periodically re-run `uv lock --upgrade` (then `uv sync`) from the repo root to pull the shared lockfile forward.
+- Always run with the newest resolvable versions of every dependency. Keep dependency specifiers as lower bounds only (`>=`), never pin exact versions or add upper bounds (the one exception is `[build-system] requires = ["uv_build>=…,<…"]`, which is uv's own generated template — keep it on the installed uv's minor, e.g. `>=0.13.4,<0.14.0` for uv 0.13.x), and periodically re-run `uv lock --upgrade` (then `uv sync`) from the repo root to pull the shared lockfile forward.
 
 ## Formatting policy
 
