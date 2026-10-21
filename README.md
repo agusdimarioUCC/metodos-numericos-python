@@ -6,6 +6,20 @@ Implementaciones en Python de los métodos numéricos del Taller de Métodos Num
 
 Requiere [`uv`](https://docs.astral.sh/uv/) para manejar dependencias y entornos (no se usa `pip` ni `venv` directamente) y Python ≥ 3.15 (`uv` lo instala solo si hace falta).
 
+Si no tenés `uv`, se instala con un solo comando. En Windows (PowerShell):
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+En macOS y Linux:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Cerrá y volvé a abrir la terminal para que `uv` quede en el PATH.
+
 Instalá o sincronizá el entorno desde la raíz del repo:
 
 ```bash
