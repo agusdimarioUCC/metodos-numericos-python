@@ -64,7 +64,7 @@ Es un solo proyecto de `uv` (un `pyproject.toml`, un `uv.lock` y un `.venv`) con
 - Cada método es un subpaquete (`metodos_numericos/biseccion/`, `metodos_numericos/secante/`, etc.). Su solver vive en `__init__.py` y no depende de la interfaz. Su `gui.py` solo describe campos, columnas y gráfico, y ninguno importa `tkinter`.
 - `registro.py` y `app.py` forman la app. `registro.py` es el único módulo que conoce todos los métodos, y `app.py` crea la ventana principal.
 
-La arquitectura interna está detallada en `CLAUDE.md`.
+La arquitectura interna está detallada en `AGENTS.md`.
 
 ## Licencia
 
