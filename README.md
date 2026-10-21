@@ -1,64 +1,64 @@
 # Métodos Numéricos
 
-Implementaciones en Python de métodos numéricos para el Taller de Métodos Numéricos, con una GUI unificada en Tkinter y una capa de solvers reutilizable en cada método.
+Implementaciones en Python de los métodos numéricos del Taller de Métodos Numéricos. Todos se usan desde una misma GUI en Tkinter, y cada método tiene su solver separado de la interfaz.
 
 ## Métodos incluidos
 
-- **Bisección** (`biseccion/`) — búsqueda de raíces de `f(x) = 0` por intervalos.
-- **Punto fijo** (`punto_fijo/`) — iteración `x = g(x)`.
-- **Newton-Raphson** (`newton_raphson/`) — `f(x)` y `f'(x)`, convergencia cuadrática.
-- **Secante** (`secante/`) — Newton-Raphson sin derivada analítica.
-- **Gauss-Seidel** (`gauss_seidel/`) — resolución iterativa de sistemas `Ax = b`, con detección/reordenamiento por dominancia diagonal.
-- **Descomposición LU** (`descomposicion_lu/`) — resolución directa de `Ax = b`, cálculo de `A⁻¹` y número de condición.
-- **Regresión lineal** (`regresion_lineal/`) — mínimos cuadrados, con linealización para modelos exponencial, potencial y de crecimiento.
-- **Interpolación de Newton** (`interpolacion_newton/`) — polinomio por diferencias divididas.
-- **Interpolación de Lagrange** (`interpolacion_lagrange/`) — polinomio como suma de Lᵢ(x)·yᵢ, sin diferencias divididas.
-- **Trazadoras cúbicas** (`trazadoras_cubicas/`) — natural y condicionada, un polinomio cúbico por tramo.
+- Bisección (`biseccion/`): busca raíces de `f(x) = 0` por intervalos.
+- Punto fijo (`punto_fijo/`): itera `x = g(x)`.
+- Newton-Raphson (`newton_raphson/`): usa `f(x)` y `f'(x)`, con convergencia cuadrática.
+- Secante (`secante/`): Newton-Raphson sin derivada analítica.
+- Gauss-Seidel (`gauss_seidel/`): resuelve `Ax = b` de forma iterativa y detecta o reordena por dominancia diagonal.
+- Descomposición LU (`descomposicion_lu/`): resuelve `Ax = b` de forma directa y calcula `A⁻¹` y el número de condición.
+- Regresión lineal (`regresion_lineal/`): mínimos cuadrados, con linealización para los modelos exponencial, potencial y de crecimiento.
+- Interpolación de Newton (`interpolacion_newton/`): polinomio por diferencias divididas.
+- Interpolación de Lagrange (`interpolacion_lagrange/`): polinomio como suma de Lᵢ(x)·yᵢ, sin diferencias divididas.
+- Trazadoras cúbicas (`trazadoras_cubicas/`): natural y condicionada, con un polinomio cúbico por tramo.
 
 ## Estructura del repositorio
 
-Es un solo proyecto de `uv` (un `pyproject.toml`, un `uv.lock`, un `.venv`) con un único paquete, `src/metodos_numericos/`:
+Es un solo proyecto de `uv` (un `pyproject.toml`, un `uv.lock` y un `.venv`) con un paquete, `src/metodos_numericos/`:
 
-- La raíz del paquete es el código compartido: manejo de errores, formato numérico al estilo de la cátedra, lectura/validación de expresiones `f(x)` ingresadas por el usuario, el contrato declarativo `DescriptorDeMetodo` que cada método expone, y el toolkit de GUI en Tkinter (`metodos_numericos.gui`).
-- Cada método es un subpaquete (`metodos_numericos/biseccion/`, `metodos_numericos/secante/`, …) con su solver desacoplado de la interfaz en `__init__.py` y un `gui.py` que solo describe sus campos/columnas/gráfico (ninguno importa `tkinter`).
-- `registro.py` y `app.py` son la app que une todo: `registro.py` es el único módulo que conoce todos los métodos y `app.py` instancia la ventana principal.
+- La raíz del paquete tiene el código compartido: manejo de errores, formato numérico al estilo de la cátedra, lectura y validación de las expresiones `f(x)` que escribe el usuario, el contrato declarativo `DescriptorDeMetodo` que expone cada método y el toolkit de GUI en Tkinter (`metodos_numericos.gui`).
+- Cada método es un subpaquete (`metodos_numericos/biseccion/`, `metodos_numericos/secante/`, etc.). Su solver vive en `__init__.py` y no depende de la interfaz. Su `gui.py` solo describe campos, columnas y gráfico, y ninguno importa `tkinter`.
+- `registro.py` y `app.py` forman la app. `registro.py` es el único módulo que conoce todos los métodos, y `app.py` crea la ventana principal.
 
-Para más detalle sobre la arquitectura interna, ver `CLAUDE.md`.
+La arquitectura interna está detallada en `CLAUDE.md`.
 
 ## Requisitos
 
-- [`uv`](https://docs.astral.sh/uv/) para manejo de dependencias y entornos (no se usa `pip` ni `venv` directamente).
+- [`uv`](https://docs.astral.sh/uv/) para manejar dependencias y entornos (no se usa `pip` ni `venv` directamente).
 - Python ≥ 3.14 (`uv` lo instala solo si hace falta).
 
 ## Uso
 
-Instalar/sincronizar el entorno compartido desde la raíz del repo:
+Instalá o sincronizá el entorno desde la raíz del repo:
 
 ```bash
 uv sync
 ```
 
-Abrir la GUI unificada (todos los métodos, con barra lateral):
+Abrí la GUI con todos los métodos y su barra lateral:
 
 ```bash
 uv run metodos-numericos
 ```
 
-Para abrirla con doble clic, sin terminal, instalala una vez como herramienta de uv (con `--editable`, los cambios al código se ven al volver a abrirla):
+Para abrirla con doble clic, sin terminal, instalala una vez como herramienta de uv. Con `--editable`, los cambios en el código se ven al volver a abrirla:
 
 ```bash
 uv tool install --editable .
 ```
 
-Eso deja `metodos-numericos` en el PATH: se abre desde Win+R, el buscador de Windows o un acceso directo, sin consola.
+Eso deja `metodos-numericos` en el PATH, así que se abre desde Win+R, el buscador de Windows o un acceso directo, sin consola.
 
-Si el script llegara a fallar (o para ver un error al arrancar, que sin consola no se muestra), hay una alternativa equivalente:
+Si el script falla, o si querés ver un error de arranque (sin consola no se muestra), usá esta alternativa equivalente:
 
 ```bash
 uv run python -m metodos_numericos
 ```
 
-Correr los tests (los de Gauss-Seidel). Se usa `python -m pytest` porque `uv run pytest` falla cuando la ruta del repo tiene tildes:
+Para correr los tests (los de Gauss-Seidel) se usa `python -m pytest`, porque `uv run pytest` falla cuando la ruta del repo tiene tildes:
 
 ```bash
 uv run python -m pytest
@@ -66,4 +66,4 @@ uv run python -m pytest
 
 ## Licencia
 
-MIT — ver [LICENSE](LICENSE).
+MIT. Ver [LICENSE](LICENSE).
