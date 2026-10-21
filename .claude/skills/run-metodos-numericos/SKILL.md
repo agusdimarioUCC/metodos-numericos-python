@@ -3,7 +3,7 @@ name: run-metodos-numericos
 description: Run, launch, start, screenshot or drive the Tkinter GUI of metodos-numericos (bisección, Newton, secante, LU, etc.) and run its tests. Use to see a UI change working or capture a method's result.
 ---
 
-Paths are relative to `metodos-numericos-python/`. App de escritorio Tkinter (Windows, `uv`, Python ≥ 3.14). Se maneja con `driver.py`: abre la ventana real, elige un método, carga campos, calcula, imprime el texto del resultado y guarda una captura.
+Paths are relative to `metodos-numericos-python/`. App de escritorio Tkinter (Windows, `uv`, Python ≥ 3.15). Se maneja con `driver.py`: abre la ventana real, elige un método, carga campos, calcula, imprime el texto del resultado y guarda una captura.
 
 ## Setup
 ```bash

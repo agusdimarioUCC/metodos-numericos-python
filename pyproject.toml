@@ -3,7 +3,7 @@ name = "metodos-numericos"
 version = "0.1.0"
 description = "Métodos numéricos del Taller de Métodos Numéricos, con una GUI unificada en Tkinter"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.15"
 dependencies = [
     "matplotlib>=3.11.2",
     "numpy>=2.5.3",

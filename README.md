@@ -28,7 +28,7 @@ La arquitectura interna está detallada en `CLAUDE.md`.
 ## Requisitos
 
 - [`uv`](https://docs.astral.sh/uv/) para manejar dependencias y entornos (no se usa `pip` ni `venv` directamente).
-- Python ≥ 3.14 (`uv` lo instala solo si hace falta).
+- Python ≥ 3.15 (`uv` lo instala solo si hace falta).
 
 ## Uso
 
