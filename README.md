@@ -2,35 +2,9 @@
 
 Implementaciones en Python de los métodos numéricos del Taller de Métodos Numéricos. Todos se usan desde una misma GUI en Tkinter, y cada método tiene su solver separado de la interfaz.
 
-## Métodos incluidos
-
-- Bisección (`biseccion/`): busca raíces de `f(x) = 0` por intervalos.
-- Punto fijo (`punto_fijo/`): itera `x = g(x)`.
-- Newton-Raphson (`newton_raphson/`): usa `f(x)` y `f'(x)`, con convergencia cuadrática.
-- Secante (`secante/`): Newton-Raphson sin derivada analítica.
-- Gauss-Seidel (`gauss_seidel/`): resuelve `Ax = b` de forma iterativa y detecta o reordena por dominancia diagonal.
-- Descomposición LU (`descomposicion_lu/`): resuelve `Ax = b` de forma directa y calcula `A⁻¹` y el número de condición.
-- Regresión lineal (`regresion_lineal/`): mínimos cuadrados, con linealización para los modelos exponencial, potencial y de crecimiento.
-- Interpolación de Newton (`interpolacion_newton/`): polinomio por diferencias divididas.
-- Interpolación de Lagrange (`interpolacion_lagrange/`): polinomio como suma de Lᵢ(x)·yᵢ, sin diferencias divididas.
-- Trazadoras cúbicas (`trazadoras_cubicas/`): natural y condicionada, con un polinomio cúbico por tramo.
-
-## Estructura del repositorio
-
-Es un solo proyecto de `uv` (un `pyproject.toml`, un `uv.lock` y un `.venv`) con un paquete, `src/metodos_numericos/`:
-
-- La raíz del paquete tiene el código compartido: manejo de errores, formato numérico al estilo de la cátedra, lectura y validación de las expresiones `f(x)` que escribe el usuario, el contrato declarativo `DescriptorDeMetodo` que expone cada método y el toolkit de GUI en Tkinter (`metodos_numericos.gui`).
-- Cada método es un subpaquete (`metodos_numericos/biseccion/`, `metodos_numericos/secante/`, etc.). Su solver vive en `__init__.py` y no depende de la interfaz. Su `gui.py` solo describe campos, columnas y gráfico, y ninguno importa `tkinter`.
-- `registro.py` y `app.py` forman la app. `registro.py` es el único módulo que conoce todos los métodos, y `app.py` crea la ventana principal.
-
-La arquitectura interna está detallada en `CLAUDE.md`.
-
-## Requisitos
-
-- [`uv`](https://docs.astral.sh/uv/) para manejar dependencias y entornos (no se usa `pip` ni `venv` directamente).
-- Python ≥ 3.15 (`uv` lo instala solo si hace falta).
-
 ## Uso
+
+Requiere [`uv`](https://docs.astral.sh/uv/) para manejar dependencias y entornos (no se usa `pip` ni `venv` directamente) y Python ≥ 3.15 (`uv` lo instala solo si hace falta).
 
 Instalá o sincronizá el entorno desde la raíz del repo:
 
@@ -63,6 +37,20 @@ Para correr los tests (los de Gauss-Seidel) se usa `python -m pytest`, porque `u
 ```bash
 uv run python -m pytest
 ```
+
+## Métodos
+
+Bisección, punto fijo, Newton-Raphson, secante, Gauss-Seidel, descomposición LU, regresión lineal, interpolación (Newton y Lagrange) y trazadoras cúbicas. Cada uno está en su propio subpaquete de `src/metodos_numericos/`.
+
+## Estructura del repositorio
+
+Es un solo proyecto de `uv` (un `pyproject.toml`, un `uv.lock` y un `.venv`) con un paquete, `src/metodos_numericos/`:
+
+- La raíz del paquete tiene el código compartido: manejo de errores, formato numérico al estilo de la cátedra, lectura y validación de las expresiones `f(x)` que escribe el usuario, el contrato declarativo `DescriptorDeMetodo` que expone cada método y el toolkit de GUI en Tkinter (`metodos_numericos.gui`).
+- Cada método es un subpaquete (`metodos_numericos/biseccion/`, `metodos_numericos/secante/`, etc.). Su solver vive en `__init__.py` y no depende de la interfaz. Su `gui.py` solo describe campos, columnas y gráfico, y ninguno importa `tkinter`.
+- `registro.py` y `app.py` forman la app. `registro.py` es el único módulo que conoce todos los métodos, y `app.py` crea la ventana principal.
+
+La arquitectura interna está detallada en `CLAUDE.md`.
 
 ## Licencia
 
