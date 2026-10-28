@@ -52,6 +52,26 @@ Para correr los tests (los de Gauss-Seidel) se usa `python -m pytest`, porque `u
 uv run python -m pytest
 ```
 
+### En macOS
+
+Se usa igual que en Windows: instalá `uv` con el comando de arriba, bajá el repo y, desde su carpeta, abrí la GUI con `uv run metodos-numericos`. Hace falta internet solo la primera vez, para bajar Python y las dependencias.
+
+```bash
+git clone https://github.com/agusdimarioUCC/metodos-numericos-python.git
+cd metodos-numericos-python
+uv run metodos-numericos
+```
+
+Si no tenés `git`, también podés bajar el repo desde GitHub con Code › Download ZIP.
+
+Diferencias con Windows:
+
+- La interfaz usa la fuente del sistema, porque Bahnschrift no existe en macOS, y las fórmulas usan STIX Two Text o Georgia en lugar de Cambria. Se ve algo distinto, pero las tablas y los resultados son los mismos.
+- La primera vez que uses «Guardar como JPG», macOS te va a pedir permiso de grabación de pantalla para la terminal desde la que abriste el programa (Ajustes del Sistema › Privacidad y seguridad › Grabación de pantalla), porque el botón saca una captura del panel.
+- `uv tool install --editable .` deja el comando `metodos-numericos` disponible en la terminal, pero no crea un ícono para abrirlo con doble clic.
+
+Todavía no se probó en una Mac. Si algo falla al arrancar, `uv run python -m metodos_numericos` muestra el error.
+
 ## Métodos
 
 Bisección, punto fijo, Newton-Raphson, secante, Gauss-Seidel, descomposición LU, regresión lineal, interpolación (Newton y Lagrange) y trazadoras cúbicas. Cada uno está en su propio subpaquete de `src/metodos_numericos/`.
