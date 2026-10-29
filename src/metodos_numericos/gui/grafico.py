@@ -705,7 +705,10 @@ class LienzoDelGrafico(ttk.Frame):
 						markerfacecolor=colores.VERDE_CELDA, markeredgecolor=color, markeredgewidth=1.4, zorder=4)
 		propiedades = {"family": self._familia_matematica, "style": "italic", "size": 11}
 		if cantidad_de_componentes <= 4:
-			leyenda = ejes.legend(loc="upper right", frameon=False, ncol=cantidad_de_componentes, prop=propiedades)
+			# Arriba, afuera de los ejes: adentro tapaba la franja de la iteración seleccionada.
+			leyenda = ejes.legend(
+				loc="lower right", bbox_to_anchor=(1, 1), frameon=False, ncol=cantidad_de_componentes, prop=propiedades
+			)
 		else:
 			# Con muchas incógnitas la leyenda taparía las curvas: va afuera, a la derecha.
 			leyenda = ejes.legend(loc="upper left", bbox_to_anchor=(1.01, 1), frameon=False, prop=propiedades)

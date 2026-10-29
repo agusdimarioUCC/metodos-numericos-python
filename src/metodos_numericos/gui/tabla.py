@@ -43,6 +43,7 @@ class TablaDeIteraciones(ttk.Frame):
 		self._decimales = 4
 		self._tolerancia: float | None = None
 		self._raiz_resaltada = False
+		self._terminado = False
 		self._seleccion: int | None = None
 		self._primera_fila_bajo_tolerancia: dict[int, int] = {}
 		self._anchos_base: list[int] = []
@@ -51,7 +52,7 @@ class TablaDeIteraciones(ttk.Frame):
 		self._redibujo_pendiente: str | None = None
 
 		self._alto_de_fila = tema.px(26)
-		self._margen_de_celda = tema.px(10)
+		self._margen_de_celda = tema.px(6)
 
 		self._encabezado = tk.Canvas(
 			self,
@@ -106,6 +107,7 @@ class TablaDeIteraciones(ttk.Frame):
 		self._tolerancia = tolerancia
 		self._filas = []
 		self._raiz_resaltada = False
+		self._terminado = False
 		self._seleccion = None
 		self._primera_fila_bajo_tolerancia = {}
 		self._calcular_anchos_base()
@@ -129,7 +131,10 @@ class TablaDeIteraciones(ttk.Frame):
 	def finalizar(self, resaltar_raiz: bool) -> None:
 		"""Marca el fin del cálculo: si terminó bien, pinta de ámbar la celda de la raíz."""
 		self._raiz_resaltada = resaltar_raiz and bool(self._filas)
-		if self._filas:
+		self._terminado = True
+		if any(columna.sumar for columna in self._columnas):
+			self._dibujar_todo()
+		elif self._filas:
 			self._redibujar_fila(len(self._filas) - 1)
 
 	def seleccionar(self, indice: int | None) -> None:
@@ -205,7 +210,8 @@ class TablaDeIteraciones(ttk.Frame):
 		medir_numero = self._tema.numeros.measure
 		medir_encabezado = self._tema.numeros_destacados.measure
 		margen = 2 * self._margen_de_celda
-		ejemplo_numerico = SIGNO_MENOS + "00," + "0" * self._decimales
+		# Una cifra entera: las columnas con valores más grandes se ensanchan solas (`_ensanchar_si_hace_falta`).
+		ejemplo_numerico = SIGNO_MENOS + "0," + "0" * self._decimales
 		self._anchos_base = []
 		for columna in self._columnas:
 			if columna.formato is FormatoDeColumna.ENTERO:
@@ -257,6 +263,7 @@ class TablaDeIteraciones(ttk.Frame):
 		for indice in range(len(self._filas)):
 			self._dibujar_fila(indice)
 		self._actualizar_lineas_verticales_y_region()
+		self._dibujar_fila_de_totales()
 		self._dibujar_seleccion()
 		self._encabezado.configure(scrollregion=(0, 0, ancho_total, int(self._encabezado["height"])))
 
@@ -359,6 +366,30 @@ class TablaDeIteraciones(ttk.Frame):
 					continue
 				self._cuerpo.create_line(borde, 0, borde, alto_total, fill=colores.LINEA, tags="vertical")
 		self._cuerpo.configure(scrollregion=(0, 0, self._bordes[-1], alto_total))
+
+	def _dibujar_fila_de_totales(self) -> None:
+		"""La fila Σ de la tabla de sumatorias de los apuntes, debajo de la última fila."""
+		if not (self._terminado and self._filas and any(columna.sumar for columna in self._columnas)):
+			return
+		arriba = len(self._filas) * self._alto_de_fila
+		abajo = arriba + self._alto_de_fila
+		for indice_de_columna, columna in enumerate(self._columnas):
+			if columna.clave == "numero":
+				texto = "Σ"
+			elif columna.sumar:
+				valores = (self._valor(fila, columna) for fila in self._filas)
+				texto = formatear_numero(sum(float(valor) for valor in valores if valor is not None), self._decimales)
+			else:
+				texto = ""
+			self._cuerpo.create_text(
+				*self._ancla_de_texto(indice_de_columna, arriba + self._alto_de_fila / 2),
+				text=texto, anchor=self._ancla(columna), font=self._tema.numeros_destacados, fill=colores.TINTA,
+			)
+		for borde in self._bordes:
+			self._cuerpo.create_line(borde, arriba, borde, abajo, fill=colores.LINEA)
+		self._cuerpo.create_line(0, arriba, self._bordes[-1], arriba, fill=colores.TINTA_SUAVE)
+		self._cuerpo.create_line(0, abajo, self._bordes[-1], abajo, fill=colores.LINEA)
+		self._cuerpo.configure(scrollregion=(0, 0, self._bordes[-1], abajo))
 
 	def _dibujar_seleccion(self) -> None:
 		self._cuerpo.delete("seleccion")

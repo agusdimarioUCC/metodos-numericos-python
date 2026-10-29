@@ -31,7 +31,8 @@ def ejecutar_punto_fijo(valores: dict[str, object], reportar_iteracion: Reportar
 
 	Returns:
 		La raíz, la cantidad de iteraciones y la verificación g(raíz), que
-		tendría que dar igual a la raíz (es un punto fijo de g).
+		da casi la raíz (es un punto fijo de g); sin `esperado`, porque solo
+		coincide hasta ε y la GUI lo mostraría como una falla.
 	"""
 	funcion_g = valores["funcion_g"]
 	raiz, iteraciones = punto_fijo(
@@ -45,7 +46,7 @@ def ejecutar_punto_fijo(valores: dict[str, object], reportar_iteracion: Reportar
 		etiqueta_del_valor="Raíz",
 		valor=raiz,
 		cantidad_de_iteraciones=iteraciones,
-		verificaciones=(Verificacion("g(raíz)", funcion_g(raiz), esperado=raiz),),
+		verificaciones=(Verificacion("g(raíz)", funcion_g(raiz)),),
 	)
 
 
