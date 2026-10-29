@@ -47,7 +47,9 @@ class CampoDeEntrada:
 	por un espacio — misma idea, para poblar la grilla de puntos con un
 	ejemplo e inferir su cantidad inicial de filas. `opciones` solo se
 	usa para `SELECTOR`: la lista fija que se muestra en el desplegable
-	(`valor_por_defecto` debe ser una de ellas).
+	(`valor_por_defecto` debe ser una de ellas). `solo_si` es
+	`(nombre de un SELECTOR, opción)`: el campo queda desactivado mientras
+	ese selector tenga otra opción elegida.
 	"""
 
 	nombre: str
@@ -56,6 +58,7 @@ class CampoDeEntrada:
 	valor_por_defecto: str = ""
 	cantidad_de_lineas: int = 6
 	opciones: tuple[str, ...] = ()
+	solo_si: tuple[str, str] | None = None
 
 
 class FormatoDeColumna(Enum):
@@ -84,7 +87,9 @@ class ColumnaDeTabla:
 	debajo de la tolerancia se resalta en verde. `desplazamiento_en_filas`
 	baja cada celda de la columna esa fracción de fila y la dibuja como
 	una caja suelta (solo si tiene valor), para la tabla escalonada de
-	diferencias divididas: el orden k va corrido k/2 filas.
+	diferencias divididas: el orden k va corrido k/2 filas. `sumar`
+	agrega al pie de la tabla la fila Σ con el total de la columna (la
+	tabla de sumatorias de la regresión).
 	"""
 
 	clave: str
@@ -93,6 +98,7 @@ class ColumnaDeTabla:
 	es_raiz: bool = False
 	es_error: bool = False
 	desplazamiento_en_filas: float = 0.0
+	sumar: bool = False
 
 
 COLUMNA_DE_NUMERO_DE_FILA = ColumnaDeTabla("numero", "i", FormatoDeColumna.ENTERO)
@@ -185,6 +191,9 @@ class ResultadoDeMetodo:
 	(x, valor) que se marca en ámbar sobre esa curva (la interpolación).
 	`polinomio_desarrollado` son los coeficientes a₀…aₙ (orden
 	ascendente) del polinomio interpolante escrito en potencias de x.
+	`expresiones` recibe la cantidad de decimales y devuelve las líneas
+	de la respuesta escrita como en los apuntes (y = 0,8393x + 0,0714, o
+	un Sᵢ(x) por tramo); es un callable para reformatear sin recalcular.
 	"""
 
 	etiqueta_del_valor: str
@@ -198,6 +207,7 @@ class ResultadoDeMetodo:
 	puntos_de_datos: tuple[tuple[float, float], ...] = ()
 	punto_de_resultado: tuple[float, float] | None = None
 	polinomio_desarrollado: tuple[float, ...] = ()
+	expresiones: Callable[[int], tuple[str, ...]] | None = None
 
 
 EjecutarMetodo = Callable[[dict[str, object], ReportarIteracion], ResultadoDeMetodo]

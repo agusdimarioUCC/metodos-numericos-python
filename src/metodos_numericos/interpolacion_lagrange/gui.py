@@ -52,7 +52,7 @@ DESCRIPTOR = DescriptorDeMetodo(
 			TipoDeCampo.TABLA_DE_PUNTOS,
 			"0 1\n1 2.7182\n2 7.3891\n3 20.0855",
 		),
-		CampoDeEntrada("valor_a_interpolar", "x =", TipoDeCampo.NUMERO, "1.5"),
+		CampoDeEntrada("valor_a_interpolar", "x =", TipoDeCampo.NUMERO, "1,5"),
 	),
 	ejecutar=ejecutar_interpolacion_lagrange,
 	columnas=columnas_fijas(

@@ -14,6 +14,7 @@ from metodos_numericos import (
 	TipoDeGrafico,
 	columnas_fijas,
 )
+from metodos_numericos.formato import formatear_polinomio, formatear_valor_corto, subindice
 
 from metodos_numericos.trazadoras_cubicas import MODELOS_DISPONIBLES, trazadora_cubica
 
@@ -24,7 +25,7 @@ def ejecutar_trazadoras_cubicas(
 	"""Arma la trazadora con los puntos de la GUI y la evalúa en `valor_a_interpolar`."""
 	valores_x, valores_y = valores["puntos"]
 	valor_a_interpolar = valores["valor_a_interpolar"]
-	_, trazadora = trazadora_cubica(
+	coeficientes, trazadora = trazadora_cubica(
 		valores_x,
 		valores_y,
 		valores["tipo"],
@@ -47,7 +48,29 @@ def ejecutar_trazadoras_cubicas(
 		funcion_para_grafico=trazadora,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
 		punto_de_resultado=(valor_a_interpolar, valor_interpolado),
+		expresiones=lambda decimales: escribir_tramos(sorted(valores_x), coeficientes, decimales),
 	)
+
+
+def escribir_tramos(
+		abscisas: list[float], coeficientes: tuple[tuple[float, float, float, float], ...], decimales: int
+) -> tuple[str, ...]:
+	"""Cada Sᵢ(x) desarrollado en potencias de x con su intervalo, como el PASO 7 de los apuntes."""
+	lineas = []
+	for indice, (constante, lineal, cuadratico, cubico) in enumerate(coeficientes):
+		origen = abscisas[indice]
+		# aᵢ + bᵢ(x − xᵢ) + cᵢ(x − xᵢ)² + dᵢ(x − xᵢ)³ desarrollado por el binomio
+		desarrollado = (
+			constante - lineal * origen + cuadratico * origen**2 - cubico * origen**3,
+			lineal - 2 * cuadratico * origen + 3 * cubico * origen**2,
+			cuadratico - 3 * cubico * origen,
+			cubico,
+		)
+		intervalo = f"[{formatear_valor_corto(origen)}; {formatear_valor_corto(abscisas[indice + 1])}]"
+		lineas.append(
+			f"S{subindice(indice)}(x) = {formatear_polinomio(desarrollado, decimales)}   en {intervalo}"
+		)
+	return tuple(lineas)
 
 
 DESCRIPTOR = DescriptorDeMetodo(
@@ -67,9 +90,11 @@ DESCRIPTOR = DescriptorDeMetodo(
 			TipoDeCampo.TABLA_DE_PUNTOS,
 			"0 1\n1 2.7182\n2 7.3891\n3 20.0855",
 		),
-		CampoDeEntrada("valor_a_interpolar", "x =", TipoDeCampo.NUMERO, "1.5"),
-		CampoDeEntrada("derivada_inicial", "S′(x₀) =", TipoDeCampo.NUMERO, "1"),
-		CampoDeEntrada("derivada_final", "S′(xₙ) =", TipoDeCampo.NUMERO, "20.0855"),
+		CampoDeEntrada("valor_a_interpolar", "x =", TipoDeCampo.NUMERO, "1,5"),
+		CampoDeEntrada("derivada_inicial", "S′(x₀) =", TipoDeCampo.NUMERO, "1", solo_si=("tipo", "Condicionada")),
+		CampoDeEntrada(
+			"derivada_final", "S′(xₙ) =", TipoDeCampo.NUMERO, "20,0855", solo_si=("tipo", "Condicionada")
+		),
 	),
 	ejecutar=ejecutar_trazadoras_cubicas,
 	columnas=columnas_fijas(

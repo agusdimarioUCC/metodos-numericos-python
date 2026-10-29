@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from metodos_numericos import (
 	COLUMNA_DE_NUMERO_DE_FILA,
 	CampoDeEntrada,
@@ -14,6 +16,7 @@ from metodos_numericos import (
 	TipoDeGrafico,
 	Verificacion,
 )
+from metodos_numericos.formato import SIGNO_MENOS, formatear_numero, formatear_polinomio
 
 from metodos_numericos.regresion_lineal import MODELOS_DISPONIBLES, regresion_lineal
 
@@ -53,7 +56,22 @@ def ejecutar_regresion_lineal(
 		verificaciones=verificaciones,
 		funcion_para_grafico=funcion,
 		puntos_de_datos=tuple(zip(valores_x, valores_y)),
+		expresiones=lambda decimales: (escribir_modelo(tipo_modelo, parametros, decimales),),
 	)
+
+
+def escribir_modelo(tipo_modelo: str, parametros: dict[str, float], decimales: int) -> str:
+	"""La curva ajustada como la escriben los apuntes: `y = 0,8393x + 0,0714`, `y = 0,3430·e^(0,6853x)`."""
+	if tipo_modelo == "Lineal":
+		return f"y = {formatear_polinomio((parametros['a0'], parametros['a1']), decimales)}"
+	coeficiente = formatear_numero(parametros["A"], decimales)
+	if tipo_modelo == "Exponencial":
+		return f"y = {coeficiente}·e^({formatear_numero(parametros['B'], decimales)}x)"
+	if tipo_modelo == "Potencial":
+		return f"y = {coeficiente}·x^({formatear_numero(parametros['B'], decimales)})"
+	desplazamiento = parametros["b"]
+	signo = SIGNO_MENOS if desplazamiento < 0 else "+"
+	return f"y = {coeficiente}·x / (x {signo} {formatear_numero(abs(desplazamiento), decimales)})"
 
 
 def armar_columnas(valores: dict[str, object]) -> tuple[ColumnaDeTabla, ...]:
@@ -82,13 +100,14 @@ def armar_columnas(valores: dict[str, object]) -> tuple[ColumnaDeTabla, ...]:
 			ColumnaDeTabla("u_cuadrado", "(1/Xᵢ)²"),
 			ColumnaDeTabla("uv", "(1/Xᵢ)(1/Yᵢ)"),
 		]
-	return tuple(columnas)
+	# Todas menos i llevan su Σ al pie: son las sumatorias de las fórmulas de a₁ y a₀.
+	return (columnas[0], *(replace(columna, sumar=True) for columna in columnas[1:]))
 
 
 DESCRIPTOR = DescriptorDeMetodo(
 	nombre_para_mostrar="Regresión lineal",
 	capitulo="Ajuste de curvas",
-	formula=r"v = a_0 + a_1 u",
+	formula=r"y = a_0 + a_1 x",
 	descripcion=(
 		"Ajusta y = a₀ + a₁x (o una versión linealizada de un modelo exponencial, potencial o de "
 		"crecimiento) a un conjunto de puntos por mínimos cuadrados."

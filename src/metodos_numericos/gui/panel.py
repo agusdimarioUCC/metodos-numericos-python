@@ -210,6 +210,11 @@ class PanelDeMetodo(ttk.Frame):
 			if es_expresion:
 				campos_de_expresion.append((campo.etiqueta.rstrip(" ="), entrada))
 
+		for campo in self._descriptor.campos:
+			if campo.solo_si is not None:
+				nombre_del_selector, opcion = campo.solo_si
+				self._activar_segun_selector(self._entradas[campo.nombre], self._widgets[nombre_del_selector], opcion)
+
 		if campos_de_expresion:
 			TecladoMatematico(datos, campos_de_expresion).pack(anchor="w", pady=(px(10), 0))
 
@@ -232,6 +237,14 @@ class PanelDeMetodo(ttk.Frame):
 		ttk.Button(datos, text="Guardar como JPG", command=self._guardar_como_jpg).pack(fill="x", pady=(px(8), 0))
 		self._bloque_de_resultado = ttk.Frame(datos)
 		self._bloque_de_resultado.pack(fill="x", pady=(px(18), 0))
+
+	@staticmethod
+	def _activar_segun_selector(entrada: ttk.Entry, variable: tk.StringVar, opcion: str) -> None:
+		def actualizar(*argumentos: object) -> None:
+			entrada.state(["!disabled"] if variable.get() == opcion else ["disabled"])
+
+		variable.trace_add("write", actualizar)
+		actualizar()
 
 	def _armar_entrada(self, contenedor: tk.Widget, nombre: str, valor_por_defecto: str, ancho: int) -> ttk.Entry:
 		entrada = ttk.Entry(contenedor, width=ancho, style=_ESTILO_DE_ENTRADA, font=self._tema.matematica)
@@ -534,8 +547,10 @@ class PanelDeMetodo(ttk.Frame):
 						font=self._tema.resultado_vectorial, background=colores.AMBAR, foreground=colores.TINTA,
 					).grid(row=indice // columnas, column=indice % columnas, sticky="w", padx=(0, px(18) if columnas > 1 else 0))
 			else:
+				# Raíces: una cifra más que la tabla, para ver que 0,5672 del apunte es un redondeo arrastrado de 0,56714.
+				decimales_del_valor = decimales + 1 if self._descriptor.usa_criterio_de_parada else decimales
 				tk.Label(
-					banda, text=formatear_numero(resultado.valor, decimales),
+					banda, text=formatear_numero(resultado.valor, decimales_del_valor),
 					font=self._tema.resultado, background=colores.AMBAR, foreground=colores.TINTA,
 				).pack()
 
@@ -548,6 +563,11 @@ class PanelDeMetodo(ttk.Frame):
 					text=f"P{subindice(grado)}(x) = {formatear_polinomio(resultado.polinomio_desarrollado, decimales)}",
 					font=self._tema.numeros, wraplength=ancho_de_texto, justify="left",
 				).pack(anchor="w", pady=(0, px(4)))
+			if resultado.expresiones is not None:
+				for linea in resultado.expresiones(decimales):
+					ttk.Label(
+						bloque, text=linea, font=self._tema.numeros, wraplength=ancho_de_texto, justify="left"
+					).pack(anchor="w", pady=(0, px(4)))
 			for verificacion in resultado.verificaciones:
 				texto = f"{verificacion.etiqueta} = {formatear_numero_legible(verificacion.valor, decimales)}"
 				if verificacion.esperado is not None:
@@ -572,6 +592,9 @@ class PanelDeMetodo(ttk.Frame):
 	def _resumen_de_iteraciones(self, decimales: int) -> str:
 		cantidad = self._resultado.cantidad_de_iteraciones
 		texto = f"en {cantidad} {'iteración' if cantidad == 1 else 'iteraciones'}"
+		if self._iteraciones and self._iteraciones[-1].numero != cantidad:
+			# Secante: las filas 0 y 1 son las dos semillas, así que la tabla termina una fila después.
+			texto += f" (tabla hasta i = {self._iteraciones[-1].numero})"
 		ultimo_error = self._iteraciones[-1].error if self._iteraciones else None
 		tolerancia = self._valores.get("tolerancia") if self._valores else None
 		if ultimo_error is not None and tolerancia is not None:
