@@ -37,14 +37,19 @@ def principal():
 			print(descriptor.nombre_para_mostrar, [campo.nombre for campo in descriptor.campos], sep=" -> ")
 		return
 
+	indice = next((i for i, d in enumerate(METODOS_DISPONIBLES) if argumentos.metodo.lower() in d.nombre_para_mostrar.lower()), None)
+	if indice is None:
+		raise SystemExit(f"Ningún método contiene {argumentos.metodo!r}; ver --listar")
 	ventana = VentanaMetodosNumericos(METODOS_DISPONIBLES)
-	indice = next(i for i, d in enumerate(METODOS_DISPONIBLES) if argumentos.metodo.lower() in d.nombre_para_mostrar.lower())
 	ventana.attributes("-topmost", True)  # ImageGrab captura la pantalla: sin esto sale lo que tape a la ventana
 	ventana.lift()
 	ventana.mostrar_metodo(indice)
 	panel = ventana.paneles[indice]
 	for asignacion in argumentos.campos:
 		nombre, valor = asignacion.split("=", 1)
+		if nombre not in panel._entradas:
+			ventana.destroy()
+			raise SystemExit(f"{nombre!r} no es una entrada de texto; se puede pisar: {', '.join(panel._entradas)}")
 		entrada = panel._entradas[nombre]
 		entrada.delete(0, "end")
 		entrada.insert(0, valor)

@@ -15,7 +15,10 @@ uv sync
 PYTHONIOENCODING=utf-8 uv run python .claude/skills/run-metodos-numericos/driver.py --listar
 PYTHONIOENCODING=utf-8 uv run python .claude/skills/run-metodos-numericos/driver.py "Bisec" --salida captura.png
 PYTHONIOENCODING=utf-8 uv run python .claude/skills/run-metodos-numericos/driver.py "Newton-R" funcion="x**2-2" derivada="2*x" valor_inicial=1 --salida captura.png
+PYTHONIOENCODING=utf-8 uv run python .claude/skills/run-metodos-numericos/driver.py "LU" --salida captura.png
+PYTHONIOENCODING=utf-8 uv run python .claude/skills/run-metodos-numericos/driver.py "Bisec" extremo_inferior=3 extremo_superior=4 --salida captura.png
 ```
+Salida esperada (Newton): `RESULTADO: Raíz | 1,4142 | en 4 iteraciones, ...`. LU imprime x₁…x₃, Cond[A] y las verificaciones. El último caso imprime el error del panel ("tienen el mismo signo...") en `RESULTADO:`, no lanza excepción.
 - El primer argumento es parte del nombre del método; `nombre=valor` pisa un campo (nombres con `--listar`; además `tolerancia` y `maximo_iteraciones`). Sin campos usa los valores por defecto.
 - Imprime `RESULTADO: ...` (o el mensaje de error del panel) y `CAPTURA: <ruta>`. Abrir la PNG con Read para verla.
 - Campos de sistema/puntos (`sistema`, `puntos`, selectores) no son `ttk.Entry`: el driver solo pisa entradas de texto; esos usan su valor por defecto.
@@ -37,4 +40,9 @@ Solo hay tests de Gauss-Seidel (legado).
 - `uv run pytest` falla por la tilde en la ruta; usar `python -m pytest`.
 - Sin `PYTHONIOENCODING=utf-8` la consola de Windows rompe los acentos en la salida.
 - Necesita pantalla interactiva: no sirve sin sesión de escritorio.
-- El driver toca `panel._entradas` y `panel._calcular` (privados); si se renombran, actualizarlo.
+- El driver toca `panel._entradas`, `panel._calcular` y `panel._bloque_de_resultado` (privados); si se renombran, actualizarlo.
+- Para probar un solver sin GUI, importarlo directo: `uv run python -c "from metodos_numericos.biseccion import biseccion; print(biseccion(lambda x: x**2-2, 1, 2))"`.
+
+## Troubleshooting
+- `'sistema' no es una entrada de texto; se puede pisar: ...` → ese campo es una grilla/selector; el driver no lo carga, usar el valor por defecto.
+- `Ningún método contiene 'X'; ver --listar` → el primer argumento es una subcadena del nombre visible (con tildes: "Bisec" sirve, "Biseccion" no).
